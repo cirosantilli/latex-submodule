@@ -25,5 +25,5 @@ _aux/
 *.out
 *.synctex.gz
 
-*.ps
-*.pdf
+/*.ps
+/*.pdf
