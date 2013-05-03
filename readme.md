@@ -13,7 +13,7 @@ and because the other alternatives are either unstable or put too much burden on
 
 ## alternatives to use less space
 
-### search paths
+### clone into search paths
 
 files which have search paths for example `.sty`, could be put once on search path for every version.
 as explained in https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path
@@ -39,6 +39,8 @@ The best we could come up with was to:
     so that only the developement file woudl be kept
 
 however this has the following shortcomings:
+
+- possibility of name conflicts with other packages
 
 - users have learn about the latex search path at first usage
 
