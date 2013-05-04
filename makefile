@@ -44,14 +44,17 @@ VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
 	#path of output file to be viewed:
 VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
+ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+
 #remove automatic rules:
 .SUFFIXES:
 
 .PHONY: all clean help mkdir run ubuntu_install
 
 all: mkdir $(OUTS)
-	@echo 'OUTPUT    FILES WILL BE PUT INTO: $(OUT_DIR)'
-	@echo 'AUXILIARY FILES WILL BE PUT INTO: $(AUX_DIR)'
+	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
+	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
+	@echo $(ERASE_MSG)
 
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
@@ -75,6 +78,7 @@ clean:
 		*.synctex.gz *.ps *.pdf
 	@echo "REMOVED OUTPUT FILES IN: ."
 	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
+	@echo $(ERASE_MSG)
 
 help:
 	@echo 'sample invocations'
@@ -99,6 +103,7 @@ mkdir:
 	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
 	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
+	@echo $(ERASE_MSG)
 
 #view output.
 #called `run` for compatibility with makefiles that make executables.
