@@ -1,5 +1,5 @@
-_out/
-_aux/
+_out/*
+_aux/*
 
 *.aux
 *.glo

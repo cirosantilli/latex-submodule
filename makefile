@@ -18,18 +18,18 @@ override OUT_DIR  	?= _out/
 #override AUX_DIR  	?= _aux/
 override AUX_DIR  	?= $(OUT_DIR)
 	#extension of output:
-override OUT_EXT 		?= .pdf
+override OUT_EXT 	?= .pdf
 
 	#basename without extension of file to run:
-override VIEW				?= cheat
+override VIEW		?= cheat
 	#uses synctex to go to the page corresponding to the given line.
-override LINE				?= 1
+override LINE		?= 1
 	#viewer command used to view the output.
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
-override VIEWER 		?= okular --unique -p $$PAGE
+override VIEWER 	?= okular --unique -p $$PAGE
 
 	#compile command
-override CCC 				?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
+override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
 
 INS					:= $(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR		:= $(notdir $(INS))
@@ -50,46 +50,54 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 .PHONY: all clean help mkdir run ubuntu_install
 
 all: mkdir $(OUTS)
+	@echo 'OUTPUT    FILES WILL BE PUT INTO: $(OUT_DIR)'
+	@echo 'AUXILIARY FILES WILL BE PUT INTO: $(AUX_DIR)'
 
-	#$(STYS) $(BIBS) are here so that if any include files are modified, make again:
+#$(STYS) $(BIBS) are here so that if any include files are modified, make again:
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
-	# make pdf with bibtex and synctex:
+	#make pdf with bibtex and synctex:
 	$(CCC) "$<"
 	#allowing for error here in case tex has no bib files:
 	-bibtex "$(AUX_DIR)$*"
 	$(CCC) "$<"
 	$(CCC) -synctex=1 "$<"
-	#move output to out dir:
-	-mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"
+	#move output to out dir if they are different:
+	if [ ! $(AUX_DIR) = $(OUT_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"; fi
 
 #removes the aux and out dirs
 #also removes all files with known output extensions
 #in case you and to clean after using some ide
 #that does not allow for subdirs
 clean:
-	rm -rf $(OUT_DIR) $(AUX_DIR) \
+	rm -rf $(OUT_DIR)* $(AUX_DIR)* \
 		*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
 		*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
 		*.synctex.gz *.ps *.pdf
+	@echo "REMOVED ALL CONTENT OF DIRS: $(OUT_DIR) $(AUX_DIR)"
 
 help:
-	@echo 'sample invocations:'
-	@echo '  #installs dependencies on Ubuntu'
+	@echo 'sample invocations'
+	@echo ''
+	@echo 'install dependencies on Ubuntu:'
 	@echo '    ubuntu_install_deps'
 	@echo '    make'
 	@echo '    make clean'
-	@echo '  #views the default output file with our default view command'
+	@echo ''
+	@echo 'view the default output file with our default view command'
+	@echo ''
 	@echo '    make run'
-	@echo '  #view another file:'
+	@echo ''
+	@echo 'view another file:'
 	@echo '    make run VIEW=main'
-	@echo '  #will view file main$$(OUT_EXT) (main.pdf or main.ps typically)'
-	@#TODO manage page to allow this:
+	@echo 'will view file main$$(OUT_EXT) (main.pdf or main.ps typically)'
+	@#TODO manage   page to allow this:
 	@#echo '  #views given file with given command:'
 	@#echo "    make run VIEWER='\"evince -f\"'"
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
+	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
 
 #view output.
 #called `run` for compatibility with makefiles that make executables.

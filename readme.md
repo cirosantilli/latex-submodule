@@ -2,6 +2,12 @@ latex shared files, meant to be included as a submodule on other projects to be 
 
 for a new project, consider using the latex template located in: https://github.com/cirosantilli/latex-template/tree/1.1 directly.
 
+# warning: data loss
+
+all output and auxiliary files are put in the output dirs specified in the makefile.
+
+**DO NOT PUT ANYTHING VALUABLE INSIDE THOSE DIRS**, since `make clean` will wipe them out!!!
+
 # rationale
 
 the advantage of this submodule is obvious: centralizing all shared file developement in one place.
@@ -54,3 +60,22 @@ however this has the following shortcomings:
 
 I believe this adds a startup and maintainance barrier that is too large,
 and that it is better to simply use up a little more memory.
+
+## why output dirs are not on the repo
+
+it would be nice to keep the `_out/` in the main repo to make that even clear for users
+that this dir will contain stuff
+
+however git cannot currently track empty dirs
+
+of course, one could put a dummy file like `.gitkeep` or `readme.md` inside the dir to keep it
+
+however any file put into those dirs could conflict with output files
+(what if the program output is called `.gitkeep` or `readme.md` ?)
+
+since `_out/` is such a rare name and obviously not a place where users should put their important files,
+a design decision was made to keep it out of the repo.
+
+furthermore dataloss is an inevitable possible consequense of `make clean`,
+and even keeping the `_out` in the repo would not prevent people from losing their data
+( it might even increase the chances that someone puts something in there... )
