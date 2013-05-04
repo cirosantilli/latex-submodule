@@ -31,6 +31,9 @@ override VIEWER 	?= okular --unique -p $$PAGE
 	#compile command
 override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
 
+override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+override MEDIA_GEN_DIR ?= media-gen/
+
 INS					:= $(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR		:= $(notdir $(INS))
 OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
@@ -44,14 +47,12 @@ VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
 	#path of output file to be viewed:
 VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
-ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
-
 #remove automatic rules:
 .SUFFIXES:
 
-.PHONY: all clean help mkdir run ubuntu_install
+.PHONY: all clean help media-gen mkdir run ubuntu_install
 
-all: mkdir $(OUTS)
+all: media-gen mkdir $(OUTS)
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
 	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
 	@echo $(ERASE_MSG)
@@ -79,6 +80,7 @@ clean:
 	@echo "REMOVED OUTPUT FILES IN: ."
 	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
+	cd $(MEDIA_GEN_DIR) && make clean
 
 help:
 	@echo 'sample invocations'
@@ -98,6 +100,10 @@ help:
 	@#TODO manage   page to allow this:
 	@#echo '  #views given file with given command:'
 	@#echo "    make run VIEWER='\"evince -f\"'"
+
+#generate media generated programtically:
+media-gen:
+	cd $(MEDIA_GEN_DIR) && make
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
