@@ -31,13 +31,13 @@ override VIEWER 		?= okular --unique -p $$PAGE
 	#compile command
 override CCC 				?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
 
-INS					:= $(wildcard $(IN_DIR)*$(IN_EXT))
-INS_NODIR		:= $(notdir $(INS))
+INS			:= $(wildcard $(IN_DIR)*$(IN_EXT))
+INS_NODIR	:= $(notdir $(INS))
 OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
-OUTS				:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
+OUTS		:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-STYS				:= $(wildcard $(IN_DIR)*.sty)
-BIBS				:= $(wildcard $(IN_DIR)*.bib)
+STYS		:= $(wildcard $(IN_DIR)*.sty)
+BIBS		:= $(wildcard $(IN_DIR)*.bib)
 
 	#path of tex file to be viewed (needed by synctex):
 VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
@@ -67,8 +67,9 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
 #in case you and to clean after using some ide
 #that does not allow for subdirs
 clean:
-	rm -rf $(OUT_DIR) $(AUX_DIR) \
-		*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
+	cd $(OUT_DIR) && rm -rf `ls | grep -v 'readme.md'`
+	cd $(AUX_DIR) && rm -rf `ls | grep -v 'readme.md'`
+	rm 	-rf *.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
 		*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
 		*.synctex.gz *.ps *.pdf
 

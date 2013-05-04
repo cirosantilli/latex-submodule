@@ -1,5 +1,8 @@
-_out/
-_aux/
+_out/*
+_aux/*
+
+!_out/readme.md
+!_aux/readme.md
 
 *.aux
 *.glo
