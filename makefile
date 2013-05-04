@@ -69,11 +69,12 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
 #in case you and to clean after using some ide
 #that does not allow for subdirs
 clean:
-	rm -rf $(OUT_DIR)* $(AUX_DIR)* \
+	rm -rf $(OUT_DIR) $(AUX_DIR) \
 		*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
 		*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
 		*.synctex.gz *.ps *.pdf
-	@echo "REMOVED ALL CONTENT OF DIRS: $(OUT_DIR) $(AUX_DIR)"
+	@echo "REMOVED OUTPUT FILES IN: ."
+	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
 
 help:
 	@echo 'sample invocations'
