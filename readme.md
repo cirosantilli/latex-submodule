@@ -1,6 +1,14 @@
 latex shared files, meant to be included as a submodule on other projects to be shared amongst projects.
 
+# installation
+
 for a new project, consider using the latex template located in: https://github.com/cirosantilli/latex-template/tree/1.1 directly.
+
+you could also do:
+
+    git submodule add https://github.com/cirosantilli/latex-submodule shared
+    cd shared
+    ./install.sh
 
 # warning: data loss
 
