@@ -101,9 +101,9 @@ help:
 	@#echo '  #views given file with given command:'
 	@#echo "    make run VIEWER='\"evince -f\"'"
 
-#generate media generated programtically:
+#generate media generated programtically
 media-gen:
-	cd $(MEDIA_GEN_DIR) && make
+	-cd $(MEDIA_GEN_DIR) && make
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
