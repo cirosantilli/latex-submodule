@@ -77,10 +77,12 @@ clean:
 		*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
 		*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
 		*.synctex.gz *.ps *.pdf
-	@echo "REMOVED OUTPUT FILES IN: ."
+	if [ -d $(MEDIA_GEN_DIR) ]; then \
+		make -C $(MEDIA_GEN_DIR) clean	;\
+	fi
+	@echo "REMOVED OUTPUT FILES BY EXTENSION IN: ."
 	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
-	cd $(MEDIA_GEN_DIR) && make clean
 
 help:
 	@echo 'sample invocations'
