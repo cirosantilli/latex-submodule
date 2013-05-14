@@ -1,10 +1,19 @@
 #compiles all tex files in current dir as pdfs
-
+#
 #may take input from any dir, and put output in any dir.
-
-##vim configuration
-
-	#au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>
+#
+##forward search
+#
+#supports editor agnostic forward search
+#
+#example of vim configuration for forward make:
+#
+#	au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>
+#
+##TODO
+#
+#- extract upload_tag automatically
+#- put ftp user and host in separate file. What format to use?
 
 	#extension of input files:
 override IN_EXT   	?= .tex
@@ -27,6 +36,10 @@ override LINE		?= 1
 	#viewer command used to view the output.
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
 override VIEWER 	?= okular --unique -p $$PAGE
+	#default upload tag, name of directory under which zip file will go
+override UPLOAD_TAG ?= 1.2
+override FTP_HOST 	?= cirosantilli.t15.org
+override FTP_USER 	?= u147220728
 
 	#compile command
 override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
@@ -34,13 +47,13 @@ override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR
 override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
 override MEDIA_GEN_DIR ?= media-gen/
 
-INS					:= $(wildcard $(IN_DIR)*$(IN_EXT))
-INS_NODIR		:= $(notdir $(INS))
+INS			:= $(wildcard $(IN_DIR)*$(IN_EXT))
+INS_NODIR	:= $(notdir $(INS))
 OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
-OUTS				:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
+OUTS		:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-STYS				:= $(wildcard $(IN_DIR)*.sty)
-BIBS				:= $(wildcard $(IN_DIR)*.bib)
+STYS		:= $(wildcard $(IN_DIR)*.sty)
+BIBS		:= $(wildcard $(IN_DIR)*.bib)
 
 	#path of tex file to be viewed (needed by synctex):
 VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
@@ -50,7 +63,7 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 #remove automatic rules:
 .SUFFIXES:
 
-.PHONY: all clean help media-gen mkdir run ubuntu_install
+.PHONY: all clean help media-gen mkdir run ubuntu_install upload_output
 
 all: media-gen mkdir $(OUTS)
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
@@ -130,8 +143,23 @@ ubuntu_install_deps:
 	sudo aptitude install -y texlive-full
 	sudo aptitude install -y okular
 
-#upload output files to a host
-upload_output:
-	TMP_DIR="`mktemp -d`" &&\
-	cp -r "$(OUT_DIR)" "$D" &&\
-	cd "$$TMP_DIR"
+#- create what will be output to a web host on a temporary dir
+#- upload the files
+#- remove the temporary dir
+#
+#only files with the OUT_EXT will be kept in the output
+upload_output: all
+	if [ -z "$(UPLOAD_TAG)" ]; then echo "UPLOAD_TAG not specified"; fi
+	TMP_DIR="`mktemp -d --tmpdir latex.XXXXXX`" 			&&\
+	mkdir -p "$$TMP_DIR/$(UPLOAD_TAG)/tree/" 				&&\
+	cp -lr "$(OUT_DIR)"* "$$TMP_DIR/$(UPLOAD_TAG)/tree/" 	&&\
+	cd "$$TMP_DIR/$(UPLOAD_TAG)" 							&&\
+	pwd &&\
+	find "tree" -mindepth 1 ! -iname "*$(OUT_EXT)" -delete 	&&\
+	if [ ! "$(UPLOAD_TAG)" = "tree" ]; then mv "tree" "$(UPLOAD_TAG)"; fi	&&\
+	zip -r "$(UPLOAD_TAG)".zip "$(UPLOAD_TAG)"*								&&\
+	if [ ! "$(UPLOAD_TAG)" = "tree" ]; then mv "$(UPLOAD_TAG)" "tree" ; fi	&&\
+	cd ..																	&&\
+	REMOTE_SUBDIR="gihub/latex-submodule/$(UPLOAD_TAG)"									&&\
+	lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$$REMOTE_SUBDIR\" && mirror -R \"$(UPLOAD_TAG)\" \"$$REMOTE_SUBDIR\"" &&\
+	rm -r "$$TMP_DIR"
