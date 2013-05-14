@@ -105,7 +105,7 @@ help:
 
 #generate media generated programtically
 media-gen:
-	-cd $(MEDIA_GEN_DIR) && make
+	if [ -d "$(MEDIA_GEN)" ]; then make -C "$(MEDIA_GEN_DIR)"; fi
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
@@ -129,3 +129,9 @@ run: all
 ubuntu_install_deps:
 	sudo aptitude install -y texlive-full
 	sudo aptitude install -y okular
+
+#upload output files to a host
+upload_output:
+	TMP_DIR="`mktemp -d`" &&\
+	cp -r "$(OUT_DIR)" "$D" &&\
+	cd "$$TMP_DIR"

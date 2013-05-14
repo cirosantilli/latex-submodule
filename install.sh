@@ -11,7 +11,7 @@ cd ..
 FS=( makefile .gitignore shared.sty shared-presentation.sty )
 for F in "${FS[@]}"; do
     if [ -e "$F" ]; then
-        echo "FILE ALREADY EXISTS. INSTALLATION ABORTED: $f"
+        echo "FILE ALREADY EXISTS. INSTALLATION ABORTED: $F"
         exit 1
     fi
 done
