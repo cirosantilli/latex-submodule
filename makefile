@@ -15,6 +15,8 @@
 #- extract upload_tag automatically
 #- put ftp user and host in separate file. What format to use?
 
+override CONFIG_FILE ?= config.py
+
 	#extension of input files:
 override IN_EXT   	?= .tex
 	#directory from which input files come. slash termianted:
@@ -26,6 +28,7 @@ override OUT_DIR  	?= _out/
 	#TODO: get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
 #override AUX_DIR  	?= _aux/
 override AUX_DIR  	?= $(OUT_DIR)
+
 	#extension of output:
 override OUT_EXT 	?= .pdf
 
@@ -38,8 +41,10 @@ override LINE		?= 1
 override VIEWER 	?= okular --unique -p $$PAGE
 	#default upload tag, name of directory under which zip file will go
 override UPLOAD_TAG ?= 1.2
-override FTP_HOST 	?= cirosantilli.t15.org
-override FTP_USER 	?= u147220728
+override FTP_HOST 		?= $(shell ./getattr FTP_USER )
+override FTP_USER 		?= $(shell ./getattr FTP_USER )
+override REMOTE_SUBDIR 	?= $(shell grep REMOTE_SUBDIR config || echo )
+$(UPLOAD_TAG)
 
 	#compile command
 override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
@@ -160,6 +165,5 @@ upload_output: all
 	zip -r "$(UPLOAD_TAG)".zip "$(UPLOAD_TAG)"*								&&\
 	if [ ! "$(UPLOAD_TAG)" = "tree" ]; then mv "$(UPLOAD_TAG)" "tree" ; fi	&&\
 	cd ..																	&&\
-	REMOTE_SUBDIR="gihub/latex-submodule/$(UPLOAD_TAG)"									&&\
-	lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$$REMOTE_SUBDIR\" && mirror -R \"$(UPLOAD_TAG)\" \"$$REMOTE_SUBDIR\"" &&\
+	lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(UPLOAD_TAG)\" \"$(REMOTE_SUBDIR)\"" &&\
 	rm -r "$$TMP_DIR"

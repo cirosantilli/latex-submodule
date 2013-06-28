@@ -6,17 +6,27 @@ set -u # error on undefined variable
 set -e # stop execution if one command returns != 0
 
 BNAME="$( basename "$( pwd )" )"
-cd ..
 
-FS=( makefile .gitignore shared.sty shared-presentation.sty )
-for F in "${FS[@]}"; do
+#shared files that will be symlinked into this repo:
+FS_LN=( makefile .gitignore shared.sty shared-presentation.sty )
+
+#templates that will be copied to project repo:
+FS_CP=( config.py )
+
+for F in "${FS_LN[@]}" "${FS_LN[@]}" ; do
     if [ -e "$F" ]; then
         echo "FILE ALREADY EXISTS. INSTALLATION ABORTED: $F"
         exit 1
     fi
 done
 
-for F in "${FS[@]}"; do
+for F in "${FS_LN[@]}"; do
+    cp "$F" ..
+done
+
+cd ..
+
+for F in "${FS_LN[@]}"; do
     ln -s "$BNAME"/"$F" "$F"
 done
 
