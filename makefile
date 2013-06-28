@@ -20,6 +20,8 @@ override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `m
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE := makefile-params
 
+include $(PARAMS_FILE)
+
 	#extension of input files:
 override IN_EXT   	?= .tex
 	#directory from which input files come. slash termianted:
