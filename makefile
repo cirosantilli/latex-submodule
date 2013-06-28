@@ -20,7 +20,7 @@ override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `m
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE := makefile-params
 
-override CONFIG_FILE ?= config.py
+include $(PARAMS_FILE)
 
 	#extension of input files:
 override IN_EXT   	?= .tex
