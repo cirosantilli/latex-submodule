@@ -13,7 +13,12 @@
 ##TODO
 #
 #- extract upload_tag automatically
-#- put ftp user and host in separate file. What format to use?
+#- recurse into subdirs of any level to find the tex files
+
+override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+
+	#this file shall be sourced here. It should only contain project specific versions of the param
+override PARAMS_FILE := makefile-params
 
 override CONFIG_FILE ?= config.py
 
@@ -41,15 +46,12 @@ override LINE		?= 1
 override VIEWER 	?= okular --unique -p $$PAGE
 	#default upload tag, name of directory under which zip file will go
 override UPLOAD_TAG ?= 1.2
-override FTP_HOST 		?= $(shell ./getattr FTP_USER )
-override FTP_USER 		?= $(shell ./getattr FTP_USER )
-override REMOTE_SUBDIR 	?= $(shell grep REMOTE_SUBDIR config || echo )
-$(UPLOAD_TAG)
+override FTP_HOST 	?=
+override FTP_USER 	?=
 
 	#compile command
 override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
 
-override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
 override MEDIA_GEN_DIR ?= media-gen/
 
 INS			:= $(wildcard $(IN_DIR)*$(IN_EXT))
@@ -103,9 +105,12 @@ clean:
 	@echo $(ERASE_MSG)
 
 help:
-	@echo 'sample invocations'
+	@echo 'compile all latex files in currrent directory into pdfs'
+	@echo ''
+	@echo '# sample invocations'
 	@echo ''
 	@echo 'install dependencies on Ubuntu:'
+	@echo ''
 	@echo '    ubuntu_install_deps'
 	@echo '    make'
 	@echo '    make clean'
@@ -115,8 +120,54 @@ help:
 	@echo '    make run'
 	@echo ''
 	@echo 'view another file:'
+	@echo ''
 	@echo '    make run VIEW=main'
+	@echo ''
 	@echo 'will view file main$$(OUT_EXT) (main.pdf or main.ps typically)'
+	@echo ''
+	@echo '# configuration'
+	@echo ''
+	@echo 'many parameters can be controlled by defining variables on a file named `makefile-params`'
+	@echo 'placed in the same directory as this makefile'
+	@echo ''
+	@echo 'the `makefile-params` file uses regular makefile syntax, but it may *not* contain any rules'
+	@echo 'only variable definitions and possibly computation steps required to reach those variables'
+	@echo ''
+	@echo 'for example, the `makefile-params` could contain:'
+	@echo ''
+	@echo '    FTP_HOST := http://ftp.a.com'
+	@echo '    A := $$(shell echo -n username )'
+	@echo '    FTP_USER := $$(A)'
+	@echo ''
+	@echo 'each parameter has a default value which shall be taken in case it does not appear in the'
+	@echo '`makefile-params` file. That value may however equal the empty string.'
+	@echo ''
+	@echo 'if you use a variable with a supported name as an intemediate buffer, dont forget to unsed that variable before the end.'
+	@echo ''
+	@echo 'example ( highly *not* recommended usage, but valid):'
+	@echo ''
+	@echo '    FTP_USER = a'
+	@echo '    b = FTP_USER'
+	@echo '    unset FTP_USER'
+	@echo ''
+	@echo 'those parameters can be equally given on the command line to make using the usual syntax'
+	@echo ''
+	@echo '    make PARAM_NAME=PARAM_VAL'
+	@echo ''
+	@echo 'the following options are supported:'
+	@echo ''
+	@echo '- FTP_HOST'
+	@echo ''
+	@echo '    host to upload output files to'
+	@echo ''
+	@echo '    default: EMPTY'
+	@echo ''
+	@echo '- FTP_USER'
+	@echo ''
+	@echo '    username to connect to the ftp host'
+	@echo ''
+	@echo '    default: EMPTY'
+	@echo ''
 	@#TODO manage   page to allow this:
 	@#echo '  #views given file with given command:'
 	@#echo "    make run VIEWER='\"evince -f\"'"
