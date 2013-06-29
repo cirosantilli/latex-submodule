@@ -15,10 +15,12 @@
 \usepackage{graphicx}
 \usepackage{natbib}	          % citep
 \usepackage{verbatim}         % comment enviroment
-\usepackage{listings}         % lstlisting environment
 \usepackage[utf8]{inputenc}   % á à â work, but not 中文
 \usepackage{array}            % format individual table columns
 \usepackage{ulem}             % underline with \uline{}
+
+\usepackage{listings}         % lstlisting environment
+\lstset{ literate={~} {$\sim$}{1} } %print decent tildes on lstlistings: <http://tex.stackexchange.com/questions/17266/how-to-insert-a-nice-tilde-in-a-lstlisting>
 
 \usepackage[linkbordercolor={1 0 0}]{hyperref} %red borders. for printing the pdf, the borders dissapear!
 
@@ -34,8 +36,11 @@
 \subsubsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}} %this will add a hrul after each section 5pt below baseline
 
 %look under the following paths for figures:
+
 \graphicspath{{./media/}}
 \graphicspath{{./media-gen/out/}}
+
+%those paths are given relative to the current files, not current directories
 
 %----------- document parts -----------------%
 \newcommand{\subsubsubsection}[1]{#1}
@@ -43,14 +48,14 @@
 %----------- theorems -----------------%
 
 \newtheoremstyle{break}% name
-  {}%         Space above, empty = `usual value'
-  {}%         Space below
-  {}%         Body font
-  {}%         Indent amount (empty = no indent, \parindent = para indent)
-  {\bfseries}% Thm head font
-  {.}%        Punctuation after thm head
-  {\newline}% Space after thm head: \newline = linebreak
-  {}%         Thm head spec
+    {}%         Space above, empty = `usual value'
+    {}%         Space below
+    {}%         Body font
+    {}%         Indent amount (empty = no indent, \parindent = para indent)
+    {\bfseries}% Thm head font
+    {.}%        Punctuation after thm head
+    {\newline}% Space after thm head: \newline = linebreak
+    {}%         Thm head spec
 
 %\theoremstyle{definition}
 \theoremstyle{break}

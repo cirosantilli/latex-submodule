@@ -1,31 +1,21 @@
-#compiles all tex files in current dir as pdfs
-#
-#may take input from any dir, and put output in any dir.
-#
-##forward search
-#
-#supports editor agnostic forward search
-#
-#example of vim configuration for forward make:
-#
-#	au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>
-#
+#see `make help` for the documentation
+
 ##TODO
 #
 #- extract upload_tag automatically
-#- recurse into subdirs of any level to find the tex files
+#- put docs on a multiline var
 
 override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE := makefile-params
 
-include $(PARAMS_FILE)
+-include $(PARAMS_FILE)
 
 	#extension of input files:
 override IN_EXT   	?= .tex
 	#directory from which input files come. slash termianted:
-override IN_DIR   	?= ./
+override IN_DIR   	?= ./tex/
 
 	#dir where output files such as .pdf will be put. slash terminated:
 override OUT_DIR  	?= _out/
@@ -50,17 +40,17 @@ override FTP_HOST 	?=
 override FTP_USER 	?=
 
 	#compile command
-override CCC 		?= pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)" 
+override CCC 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
 
-override MEDIA_GEN_DIR ?= media-gen/
+override MEDIA_GEN_DIR ?= ./media-gen/
 
 INS			:= $(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR	:= $(notdir $(INS))
 OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
 OUTS		:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-STYS		:= $(wildcard $(IN_DIR)*.sty)
-BIBS		:= $(wildcard $(IN_DIR)*.bib)
+STYS		:= $(wildcard *.sty)
+BIBS		:= $(wildcard *.bib)
 
 	#path of tex file to be viewed (needed by synctex):
 VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
@@ -72,7 +62,8 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
 .PHONY: all clean help media-gen mkdir run ubuntu_install upload_output
 
-all: media-gen mkdir $(OUTS)
+all: $(OUTS) | media-gen mkdir
+	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) -mindepth 1 -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
 	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
 	@echo $(ERASE_MSG)
@@ -105,11 +96,19 @@ clean:
 	@echo $(ERASE_MSG)
 
 help:
-	@echo 'compile all latex files in currrent directory into pdfs'
-	@echo ''
-	@echo '# sample invocations'
+	@echo 'compile all latex files under a given directory into pdfs'
 	@echo ''
 	@echo 'install dependencies on Ubuntu:'
+	@echo ''
+	@echo '#forward search'
+	@echo ''
+	@echo 'supports editor agnostic forward search'
+	@echo ''
+	@echo '      example of vim configuration for forward make:'
+	@echo ''
+	@echo 'au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>'
+	@echo ''
+	@echo '# sample invocations'
 	@echo ''
 	@echo '    ubuntu_install_deps'
 	@echo '    make'
