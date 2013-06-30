@@ -1,14 +1,37 @@
-latex shared files, meant to be included as a submodule on other projects to be shared amongst projects.
+latex shared files, meant to be factor out code amongst latex projects
+
+it should be included as a submodule on latex projects
+
+things it factors out include:
+
+- the `makefile`
+- `.gitignore`
+- common `.sty` file options
+
+# example
+
+a working example that illustrates the usage of this submodule
+is be kept at <https://github.com/cirosantilli/latex-cheat>
+
+you can get it with:
+
+    git clone --recursive https://github.com/cirosantilli/latex-cheat
 
 # installation
 
-for a new project, consider using the latex template located in: https://github.com/cirosantilli/latex-template/tree/1.1 directly.
+for a new project, consider using the latex template located at: <https://github.com/cirosantilli/latex-template> directly,
+which already has this submodule installed
 
-you could also do:
+you can get it with:
+
+    PROJECT_NAME=name
+    git clone --recursive https://github.com/cirosantilli/latex-template $PROJECT_NAME
+
+if you already have a working repository and want to start using this submodule you could do:
 
     git submodule add https://github.com/cirosantilli/latex-submodule shared
     cd shared
-    ./install.sh
+    ./install
 
 # warning: data loss
 

@@ -27,3 +27,5 @@ _aux/*
 
 /*.ps
 /*.pdf
+
+/makefile-params-local

@@ -1,16 +1,18 @@
-#see `make help` for the documentation
+#run `make help` for the documentation
 
 ##TODO
 #
 #- extract upload_tag automatically
-#- put docs on a multiline var
+#- put docs on a multiline var to avoid tons of echos and quoting hell
 
 override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
-override PARAMS_FILE := makefile-params
+override PARAMS_FILE 		:= makefile-params
+override PARAMS_FILE_LOCAL 	:= makefile-params-local
 
 -include $(PARAMS_FILE)
+-include $(PARAMS_FILE_LOCAL)
 
 	#extension of input files:
 override IN_EXT   	?= .tex
@@ -62,7 +64,7 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
 .PHONY: all clean help media-gen mkdir run ubuntu_install upload_output
 
-all: $(OUTS) | media-gen mkdir
+all: media-gen mkdir $(OUTS)
 	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) -mindepth 1 -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
 	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
@@ -79,15 +81,11 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
 	#move output to out dir if they are different:
 	if [ ! $(AUX_DIR) = $(OUT_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"; fi
 
-#removes the aux and out dirs
-#also removes all files with known output extensions
-#in case you and to clean after using some ide
-#that does not allow for subdirs
 clean:
-	rm -rf $(OUT_DIR) $(AUX_DIR) \
-		*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
-		*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
-		*.synctex.gz *.ps *.pdf
+	rm -rf $(OUT_DIR) $(AUX_DIR)
+		#*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
+		#*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
+		#*.synctex.gz *.ps *.pdf
 	if [ -d $(MEDIA_GEN_DIR) ]; then \
 		make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
@@ -95,55 +93,104 @@ clean:
 	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
 
+#view output.
+#called `run` for compatibility with makefiles that make executables.
+#TODO: get synctex to work if aux != out!!
+#PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
+#SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)" -d "$(../AUX_DIR)"`" ;\
+#echo $$PDF_PAGE ;
+
 help:
 	@echo 'compile all latex files under a given directory into pdfs'
-	@echo ''
-	@echo 'install dependencies on Ubuntu:'
 	@echo ''
 	@echo '#forward search'
 	@echo ''
 	@echo 'supports editor agnostic forward search'
 	@echo ''
-	@echo '      example of vim configuration for forward make:'
+	@echo 'example of vim configuration for forward make:'
 	@echo ''
-	@echo 'au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>'
+	@echo '    au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>'
 	@echo ''
-	@echo '# sample invocations'
+	@echo '# targets'
 	@echo ''
-	@echo '    ubuntu_install_deps'
-	@echo '    make'
-	@echo '    make clean'
+	@echo '- all (default target)'
 	@echo ''
-	@echo 'view the default output file with our default view command'
+	@echo '    makes all tex files under IN_DIR configuration parameter (recursive) into pdfs'
 	@echo ''
-	@echo '    make run'
+	@echo '    puts outputs under OUT_DIR configuraion parameter'
 	@echo ''
-	@echo 'view another file:'
+	@echo '- clean'
+	@echo ''
+	@echo '    remove all build files, which shall be put under OUT_DIR'
+	@echo ''
+	@echo '- run'
+	@echo ''
+	@echo '    requires the make target'
+	@echo ''
+	@echo '    view the file whose relative path without extension from IN_DIR'
+	@echo '    equals VIEW using the viewer program VIEWER'
+	@echo '    using the viewer program VIEWER'
 	@echo ''
 	@echo '    make run VIEW=main'
 	@echo ''
-	@echo 'will view file main$$(OUT_EXT) (main.pdf or main.ps typically)'
+	@echo '    example:'
 	@echo ''
-	@echo '# configuration'
+	@echo '        make run VIEWER=okular VIEW=subdir/index'
 	@echo ''
-	@echo 'many parameters can be controlled by defining variables on a file named `makefile-params`'
-	@echo 'placed in the same directory as this makefile'
+	@echo '- ubuntu_install_deps'
 	@echo ''
-	@echo 'the `makefile-params` file uses regular makefile syntax, but it may *not* contain any rules'
-	@echo 'only variable definitions and possibly computation steps required to reach those variables'
+	@echo '    installs all the required dependencies supposing user is on a ubuntu machine'
 	@echo ''
-	@echo 'for example, the `makefile-params` could contain:'
+	@echo '# configuration parameter'
 	@echo ''
-	@echo '    FTP_HOST := http://ftp.a.com'
+	@echo 'the following files which may contain configurations parameters for this makefile:'
+	@echo ''
+	@echo '- makefile-params'
+	@echo '- makefile-params-local'
+	@echo ''
+	@echo 'they must be placed in the same directory as this makefile'
+	@echo ''
+	@echo 'any of those files may not exist, in which case it is as if it was an empty file'
+	@echo ''
+	@echo 'those files use regular makefile syntax, but it may *not* contain any rules,'
+	@echo 'only variable definitions and possibly intermediate computation steps to reach the values'
+	@echo ''
+	@echo 'the difference between both is that the local version'
+	@echo 'shall not be tracked by git, and therefore can contain settings that'
+	@echo 'vary between different users of the same project'
+	@echo ''
+	@echo 'the local version shall be run by make *after* the non local one,'
+	@echo 'therefore any definition done there with `:=` shall override values in the non local params file'
+	@echo 'while definitions done with `?=` shall provide default values in case those are not yet defined'
+	@echo ''
+	@echo 'for example, `makefile-params` could contain:'
+	@echo ''
+	@echo '    FTP_HOST := a.com'
 	@echo '    A := $$(shell echo -n username )'
 	@echo '    FTP_USER := $$(A)'
 	@echo ''
+	@echo 'now if `makefile-params-local` contains:'
+	@echo ''
+	@echo '    FTP_HOST := b.com'
+	@echo '    FTP_USER ?= username2'
+	@echo ''
+	@echo 'then in the end, the configuration will be `FTP_HOST := b.com` (because is was defined with `:=`)'
+	@echo ''
+	@echo '    FTP_HOST := b.com'
+	@echo ''
+	@echo 'because is was defined with `:=` in the local file which is read afterwards and'
+	@echo ''
+	@echo '    FTP_USER := b.com'
+	@echo ''
+	@echo 'because is was defined with `?=` in the local file'
+	@echo ''
 	@echo 'each parameter has a default value which shall be taken in case it does not appear in the'
-	@echo '`makefile-params` file. That value may however equal the empty string.'
+	@echo 'parameter files. That value may however equal the empty string.'
 	@echo ''
-	@echo 'if you use a variable with a supported name as an intemediate buffer, dont forget to unsed that variable before the end.'
+	@echo 'if you use a variable with a supported name as an intemediate buffer,'
+	@echo 'dont forget to unsed that variable before the end, or it shall be taken as a parameter value'
 	@echo ''
-	@echo 'example ( highly *not* recommended usage, but valid):'
+	@echo 'example ( highly *not* recommended usage, but valid ):'
 	@echo ''
 	@echo '    FTP_USER = a'
 	@echo '    b = FTP_USER'
@@ -166,10 +213,6 @@ help:
 	@echo '    username to connect to the ftp host'
 	@echo ''
 	@echo '    default: EMPTY'
-	@echo ''
-	@#TODO manage   page to allow this:
-	@#echo '  #views given file with given command:'
-	@#echo "    make run VIEWER='\"evince -f\"'"
 
 #generate media generated programtically
 media-gen:
@@ -181,12 +224,6 @@ mkdir:
 	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
 
-#view output.
-#called `run` for compatibility with makefiles that make executables.
-#TODO: get synctex to work if aux != out!!
-#PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
-#SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)" -d "$(../AUX_DIR)"`" ;\
-#echo $$PDF_PAGE ;
 run: all
 	( \
 		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)"`" ;\
