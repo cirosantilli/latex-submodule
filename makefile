@@ -30,7 +30,7 @@ override AUX_DIR  	?= $(OUT_DIR)
 override OUT_EXT 	?= .pdf
 
 	#basename without extension of file to run:
-override VIEW		?= cheat
+override VIEW		?= index
 	#uses synctex to go to the page corresponding to the given line.
 override LINE		?= 1
 	#viewer command used to view the output.
