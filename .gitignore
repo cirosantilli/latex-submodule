@@ -1,5 +1,18 @@
-_out/*
-_aux/*
+/_out/
+/_aux/
+/makefile-params-local
+
+##TODO
+
+#rules are only if someone want to edit files with an editor that puts outputs on the same dir as the tex outputs
+
+#however pdf files might be part of a project (under media for inclusion for example)
+
+#also it is not possible to ignore all pdfs under /tex without putting a .gitignore there
+
+#but this would require yet another submodule to be maintainable
+
+#what to do? create the second submodule? or is there another option?
 
 *.aux
 *.glo
@@ -25,7 +38,5 @@ _aux/*
 *.out
 *.synctex.gz
 
-/*.ps
-/*.pdf
-
-/makefile-params-local
+*.ps
+*.pdf

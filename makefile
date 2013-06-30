@@ -29,7 +29,7 @@ override AUX_DIR  	?= $(OUT_DIR)
 	#extension of output:
 override OUT_EXT 	?= .pdf
 
-	#basename without extension of file to run:
+	#basename without extension of file to view:
 override VIEW		?= index
 	#uses synctex to go to the page corresponding to the given line.
 override LINE		?= 1
@@ -62,10 +62,10 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 #remove automatic rules:
 .SUFFIXES:
 
-.PHONY: all clean help media-gen mkdir run ubuntu_install upload_output
+.PHONY: all clean help media-gen mkdir ubuntu_install upload_output view
 
 all: media-gen mkdir $(OUTS)
-	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) -mindepth 1 -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
+	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
 	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
 	@echo $(ERASE_MSG)
@@ -83,9 +83,14 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
 
 clean:
 	rm -rf $(OUT_DIR) $(AUX_DIR)
-		#*.aux *.glo *.idx *.log *.toc *.ist *.acn *.acr *.alg *.bbl *.blg \
-		#*.dvi *.glg *.gls *.ilg *.ind *.lof *.lot *.maf *.mtc *.mtc1 *.out \
-		#*.synctex.gz *.ps *.pdf
+	find $(IN_DIR) -type f \( \
+		-iname '*.aux' -o -iname '*.glo' -o -iname '*.idx' -o -iname '*.log' -o -iname '*.toc' -o \
+		-iname '*.ist' -o -iname '*.acn' -o -iname '*.acr' -o -iname '*.alg' -o -iname '*.bbl' -o \
+		-iname '*.blg' -o -iname '*.dvi' -o -iname '*.glg' -o -iname '*.gls' -o -iname '*.ilg' -o \
+		-iname '*.ind' -o -iname '*.lof' -o -iname '*.lot' -o -iname '*.maf' -o -iname '*.mtc' -o \
+		-iname '*.out' -o -iname '*.pdf' -o \
+		-iname '*.mtc1' -o -iname '*.synctex.gz' -o -iname '*.ps' \) \
+		-delete
 	if [ -d $(MEDIA_GEN_DIR) ]; then \
 		make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
@@ -93,12 +98,13 @@ clean:
 	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
 
-#view output.
-#called `run` for compatibility with makefiles that make executables.
-#TODO: get synctex to work if aux != out!!
-#PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
-#SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)" -d "$(../AUX_DIR)"`" ;\
-#echo $$PDF_PAGE ;
+#generate distribution, for ex: dir with pdfs or zip with pdfs
+dist:
+	#TODO implement
+
+#clean only the dist
+distclean:
+	#TODO implement
 
 help:
 	@echo 'compile all latex files under a given directory into pdfs'
@@ -109,9 +115,15 @@ help:
 	@echo ''
 	@echo 'example of vim configuration for forward make:'
 	@echo ''
-	@echo '    au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make run VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>'
+	@echo '    au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe ':sil ! make view VIEW=''"%:r"'' LINE=''"' . line(".") . '"'''<CR>'
 	@echo ''
 	@echo '# targets'
+	@echo ''
+	@echo 'targets are sorted by increasing usefulness, simplicity or grouped by function:'
+	@echo ''
+	@echo '- ubuntu_install_deps'
+	@echo ''
+	@echo '    installs all the required dependencies supposing user is on a ubuntu machine'
 	@echo ''
 	@echo '- all (default target)'
 	@echo ''
@@ -119,11 +131,7 @@ help:
 	@echo ''
 	@echo '    puts outputs under OUT_DIR configuraion parameter'
 	@echo ''
-	@echo '- clean'
-	@echo ''
-	@echo '    remove all build files, which shall be put under OUT_DIR'
-	@echo ''
-	@echo '- run'
+	@echo '- view'
 	@echo ''
 	@echo '    requires the make target'
 	@echo ''
@@ -131,17 +139,21 @@ help:
 	@echo '    equals VIEW using the viewer program VIEWER'
 	@echo '    using the viewer program VIEWER'
 	@echo ''
-	@echo '    make run VIEW=main'
-	@echo ''
 	@echo '    example:'
 	@echo ''
-	@echo '        make run VIEWER=okular VIEW=subdir/index'
+	@echo '        make view VIEWER=okular VIEW=subdir/index'
 	@echo ''
-	@echo '- ubuntu_install_deps'
+	@echo '- clean'
 	@echo ''
-	@echo '    installs all the required dependencies supposing user is on a ubuntu machine'
+	@echo '    remove OUT_DIR and AUX_DIR and any files which are any type output by either latex, pdflatex, bibtex or synctex'
+	@echo '    for example `.pdf`, `.ps`, `synctex.gz`, `.out`, etc'
 	@echo ''
-	@echo '# configuration parameter'
+	@echo '    the removal of files under IN_DIR is done so that users who use their editors to compile'
+	@echo '    the pdfs on the same directory as the tex sources will also get a clean repo'
+	@echo ''
+	@echo '    it is however recommended that users configure their editors to use this makefile via command bindings'
+	@echo ''
+	@echo '# configuration parameters'
 	@echo ''
 	@echo 'the following files which may contain configurations parameters for this makefile:'
 	@echo ''
@@ -184,10 +196,12 @@ help:
 	@echo ''
 	@echo 'because is was defined with `?=` in the local file'
 	@echo ''
-	@echo 'each parameter has a default value which shall be taken in case it does not appear in the'
-	@echo 'parameter files. That value may however equal the empty string.'
+	@echo 'Each parameter has a default value which shall be taken in case it does not appear in the'
+	@echo 'parameter files. That value may however equal the empty string.It is recommended that you'
+	@echo 'use the default values whenever you can unless you have a good reason not to do so,'
+	@echo 'since it will be easier for people to understand your project then.'
 	@echo ''
-	@echo 'if you use a variable with a supported name as an intemediate buffer,'
+	@echo 'If you use a variable with a supported name as an intemediate buffer,'
 	@echo 'dont forget to unsed that variable before the end, or it shall be taken as a parameter value'
 	@echo ''
 	@echo 'example ( highly *not* recommended usage, but valid ):'
@@ -200,7 +214,22 @@ help:
 	@echo ''
 	@echo '    make PARAM_NAME=PARAM_VAL'
 	@echo ''
-	@echo 'the following options are supported:'
+	@echo 'the following configuration parameters are supported:'
+	@echo ''
+	@echo '- IN_DIR'
+	@echo ''
+	@echo '    directory which shall contain all of the .tex source files'
+	@echo ''
+	@echo '    IN_DIR must not be `.` Rationale: only way to clean editor generated'
+	@echo '    files such as .pdf s which are put on the same directory as the .tex'
+	@echo '    is removing files by extension, but it is possible that users want to'
+	@echo '    include pdfs as media in their project, and that media would get wiped out'
+	@echo '    by clean also. It would be possible to get around that by not removing'
+	@echo '    files under certain directories, but that would be annoying to implement'
+	@echo '	   since whenever a new directory is created it would be necessary to add it'
+	@echo '    to the dont clear directory list.'
+	@echo ''
+	@echo '    default: tex/'
 	@echo ''
 	@echo '- FTP_HOST'
 	@echo ''
@@ -224,7 +253,7 @@ mkdir:
 	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
 
-run: all
+view: all
 	( \
 		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)"`" ;\
 		PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
