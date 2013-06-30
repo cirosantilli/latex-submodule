@@ -33,6 +33,13 @@ if you already have a working repository and want to start using this submodule 
     cd shared
     ./install
 
+# usage
+
+once installed, all the usage is based on `make`,
+and you can get usage information by running:
+
+    make help
+
 # warning: data loss
 
 all output and auxiliary files are put in the output dirs specified in the makefile.
