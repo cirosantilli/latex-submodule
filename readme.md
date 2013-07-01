@@ -50,7 +50,7 @@ the repo into this submodule. For example, to use the makefile do:
 
 the `install` script helps automate the symlink creation process
 but is efficacy for existing projects is limited since it cannot decide
-what to do if symlink names already exist. To use do:
+what to do if symlink names already exist. To use it do:
 
     cd `submodule`
     ./install
