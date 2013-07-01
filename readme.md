@@ -25,28 +25,15 @@ things it factors out include:
 - common `.sty` file options
 is be kept at <https://github.com/cirosantilli/latex-cheat>
 
-you can get it with:
-
-    git clone --recursive https://github.com/cirosantilli/latex-cheat
-
 # installation
 
 ## new project
 
-for a new project, consider using the latex template located at:
+For a new project, consider using the latex template located at:
 <https://github.com/cirosantilli/latex-template> directly,
-which already has this submodule installed
+which already has this submodule installed.
 
-you can get it with:
-
-    PROJECT_NAME=name
-    git clone --recursive https://github.com/cirosantilli/latex-template $PROJECT_NAME
-
-if you already have a working repository and want to start using this submodule you could do:
-
-    git submodule add https://github.com/cirosantilli/latex-submodule shared
-    cd shared
-    ./install
+See the instructions on the readme for how to do this.
 
 ## existing project
 
