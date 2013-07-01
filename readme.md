@@ -1,5 +1,7 @@
 latex shared files, meant to be factor out code amongst latex projects
 
+it also supports markdown to pdf conversion in an analogous way to the tex to pdf conversion
+
 it should be included as a submodule on latex projects
 
 things it factors out include:

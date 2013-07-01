@@ -131,7 +131,7 @@ help:
 	@echo ''
 	@echo '- all (default target)'
 	@echo ''
-	@echo '    makes all tex files under IN_DIR configuration parameter (recursive) into pdfs'
+	@echo '    makes all .tex and .md (markdown) files under IN_DIR (recursive) into pdfs'
 	@echo ''
 	@echo '    puts outputs under OUT_DIR configuraion parameter'
 	@echo ''
