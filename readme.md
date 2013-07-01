@@ -1,18 +1,28 @@
 latex shared files, meant to be factor out code amongst latex projects
 
-it also supports markdown to pdf conversion in an analogous way to the tex to pdf conversion
-
-it should be included as a submodule on latex projects
-
 things it factors out include:
 
 - the `makefile`
 - `.gitignore`
 - common `.sty` file options
 
+it also supports markdown to pdf conversion in an analogous way to the tex to pdf conversion
+
+the advantage of this method is that whenever updates are done to the shared files,
+you can easily add them to other repository by:
+
+    cd submodule
+    git pull
+
 # example
 
 a working example that illustrates the usage of this submodule
+
+things it factors out include:
+
+- the `makefile`
+- `.gitignore`
+- common `.sty` file options
 is be kept at <https://github.com/cirosantilli/latex-cheat>
 
 you can get it with:
@@ -21,7 +31,10 @@ you can get it with:
 
 # installation
 
-for a new project, consider using the latex template located at: <https://github.com/cirosantilli/latex-template> directly,
+## new project
+
+for a new project, consider using the latex template located at:
+<https://github.com/cirosantilli/latex-template> directly,
 which already has this submodule installed
 
 you can get it with:
@@ -33,6 +46,26 @@ if you already have a working repository and want to start using this submodule 
 
     git submodule add https://github.com/cirosantilli/latex-submodule shared
     cd shared
+    ./install
+
+## existing project
+
+include this as a submodule in your existing git repo as:
+
+    git submodule add git://github.com/USERNAME/latex.git shared
+    git add .gitmodules
+
+at the repo root then symlink from the required place in
+the repo into this submodule. For example, to use the makefile do:
+
+    git-root/submodule/makefile
+    git-root/makefile               ( -> submodule/makefile)
+
+the `install` script helps automate the symlink creation process
+but is efficacy for existing projects is limited since it cannot decide
+what to do if symlink names already exist. To use do:
+
+    cd `submodule`
     ./install
 
 # usage
