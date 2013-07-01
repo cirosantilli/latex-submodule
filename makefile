@@ -95,7 +95,7 @@ clean:
 		-iname '*.out' -o -iname '*.pdf' -o \
 		-iname '*.mtc1' -o -iname '*.synctex.gz' -o -iname '*.ps' \) \
 		-delete
-	if [ -d $(MEDIA_GEN_DIR) ]; then \
+	if [ -f $(MEDIA_GEN_DIR)makefile ]; then \
 		make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
 	@echo "REMOVED OUTPUT FILES BY EXTENSION IN: ."
