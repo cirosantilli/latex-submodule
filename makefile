@@ -3,6 +3,7 @@
 ##TODO
 #
 #- 0 put help target echo on a multiline var to avoid tons of echos and quoting hell
+#- 1 handle case in which repo has no tags
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE 		:= makefile-params
