@@ -15,9 +15,9 @@ override PARAMS_FILE_LOCAL 	:= makefile-params-local
 -include $(PARAMS_FILE_LOCAL)
 
 	#extension of input files:
-override IN_EXT   	?= .tex
+override IN_EXTS   	?= .tex .md
 	#directory from which input files come. slash termianted:
-override IN_DIR   	?= ./tex/
+override IN_DIR   	?= ./src/
 
 	#dir where output files such as .pdf will be put. slash terminated:
 override OUT_DIR  	?= _out/
@@ -42,14 +42,15 @@ override FTP_HOST 	?=
 override FTP_USER 	?=
 
 	#compile command
-override CCC 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
+override CC_LATEX 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
+override CC_MD	 		?= pandoc -s --toc --mathml -N
 
 override MEDIA_GEN_DIR ?= ./media-gen/
 
-INS			:= $(wildcard $(IN_DIR)*$(IN_EXT))
-INS_NODIR	:= $(notdir $(INS))
-OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
-OUTS		:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
+INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
+INS_NODIR 	:= $(notdir $(INS))
+OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(basename $(INS_NODIR)))
+OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
 STYS		:= $(wildcard *.sty)
 BIBS		:= $(wildcard *.bib)
@@ -71,15 +72,18 @@ all: media-gen mkdir $(OUTS)
 	@echo $(ERASE_MSG)
 
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
-$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT) $(STYS) $(BIBS)
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 	#make pdf with bibtex and synctex:
-	$(CCC) "$<"
+	$(CC_LATEX) "$<"
 	#allowing for error here in case tex has no bib files:
 	-bibtex "$(AUX_DIR)$*"
-	$(CCC) "$<"
-	$(CCC) -synctex=1 "$<"
+	$(CC_LATEX) "$<"
+	$(CC_LATEX) -synctex=1 "$<"
 	#move output to out dir if they are different:
 	if [ ! $(AUX_DIR) = $(OUT_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"; fi
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.md
+	$(CC_MD) -o "$@" "$<"
 
 clean:
 	rm -rf $(OUT_DIR) $(AUX_DIR)
@@ -229,7 +233,7 @@ help:
 	@echo '	   since whenever a new directory is created it would be necessary to add it'
 	@echo '    to the dont clear directory list.'
 	@echo ''
-	@echo '    default: tex/'
+	@echo '    default: src/'
 	@echo ''
 	@echo '- FTP_HOST'
 	@echo ''
