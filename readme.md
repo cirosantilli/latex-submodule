@@ -16,14 +16,14 @@ you can easily add them to other repository by:
 
 # example
 
-a working example that illustrates the usage of this submodule
-
-things it factors out include:
+A working example that illustrates the usage of this submodule.
+Things it factors out include:
 
 - the `makefile`
 - `.gitignore`
 - common `.sty` file options
-is be kept at <https://github.com/cirosantilli/latex-cheat>
+
+It can be found at: <https://github.com/cirosantilli/latex-cheat>
 
 # installation
 
@@ -37,18 +37,18 @@ See the instructions on the readme for how to do this.
 
 ## existing project
 
-include this as a submodule in your existing git repo as:
+Include this as a submodule in your existing git repo as:
 
     git submodule add git://github.com/USERNAME/latex.git shared
     git add .gitmodules
 
-at the repo root then symlink from the required place in
+At the repo root then symlink from the required place in
 the repo into this submodule. For example, to use the makefile do:
 
     git-root/submodule/makefile
     git-root/makefile               ( -> submodule/makefile)
 
-the `install` script helps automate the symlink creation process
+The `install` script helps automate the symlink creation process
 but is efficacy for existing projects is limited since it cannot decide
 what to do if symlink names already exist. To use it do:
 
@@ -57,10 +57,17 @@ what to do if symlink names already exist. To use it do:
 
 # usage
 
-once installed, all the usage is based on `make`,
+Once installed, all the usage is based on `make`,
 and you can get usage information by running:
 
     make help
+
+Remember: only make changes to the files in this repo
+( or to ther symlink names, which is the same thing )
+if those change would be generally useful for the majority of projects,
+and then merge them back in.
+
+Otherwise, you must use other files to achieve the same effects.
 
 # warning: data loss
 
