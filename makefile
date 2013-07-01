@@ -2,7 +2,7 @@
 
 ##TODO
 #
-#- put help target echo on a multiline var to avoid tons of echos and quoting hell
+#- 0 put help target echo on a multiline var to avoid tons of echos and quoting hell
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE 		:= makefile-params
@@ -19,7 +19,7 @@ override IN_DIR   	?= ./src/
 	#dir where output files such as .pdf will be put. slash terminated:
 override OUT_DIR  	?= _out/
 	#dir where auxiliary files such as `.out` will be put. slash terminated.
-	#TODO: get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
+	#TODO 1 get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
 #override AUX_DIR  	?= _aux/
 override AUX_DIR  	?= $(OUT_DIR)
 override DIST_DIR  	?= _dist/
@@ -131,7 +131,10 @@ distclean:
 #
 #only files with the OUT_EXT will be kept in the output
 distup: dist
-	cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
+	cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\"; mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
+	#TODO 0 prevent rm -rf from failing if dir does not exist, this forces us to use `;` instead of &&
+	#the desired command would be:
+	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 
 help:
 	@echo 'compile all latex files under a given directory into pdfs'
