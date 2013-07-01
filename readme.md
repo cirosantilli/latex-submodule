@@ -1,41 +1,39 @@
-latex shared files, meant to be factor out code amongst latex projects
+Latex shared files, meant to be factor out code amongst latex projects
 
-things it factors out include:
+# Features
 
-- the `makefile`
+- automate the make process, including bibtex and synctex
+- view output with viewers
+- create a distributions such as zip files
+- upload the distribution via ftp
 - `.gitignore`
 - common `.sty` file options
+- markdown to pdf
+- many customizable parameters
 
-it also supports markdown to pdf conversion in an analogous way to the tex to pdf conversion
+# Live example
 
-the advantage of this method is that whenever updates are done to the shared files,
+A live example that illustrates the usage of this submodule.
+can be found at: <https://github.com/cirosantilli/latex-cheat>
+
+# Installation
+
+This should be used as a submodule to latex projects.
+The advantage of doing so is that whenever updates are done to the shared files,
 you can easily add them to other repository by:
 
     cd submodule
     git pull
 
-# example
-
-A working example that illustrates the usage of this submodule.
-Things it factors out include:
-
-- the `makefile`
-- `.gitignore`
-- common `.sty` file options
-
-It can be found at: <https://github.com/cirosantilli/latex-cheat>
-
-# installation
-
-## new project
+## New project
 
 For a new project, consider using the latex template located at:
 <https://github.com/cirosantilli/latex-template> directly,
 which already has this submodule installed.
 
-See the instructions on the readme for how to do this.
+See the instructions on the readme for how to use that template.
 
-## existing project
+## Existing project
 
 Include this as a submodule in your existing git repo as:
 
@@ -55,7 +53,7 @@ what to do if symlink names already exist. To use it do:
     cd `submodule`
     ./install
 
-# usage
+# Usage
 
 Once installed, all the usage is based on `make`,
 and you can get usage information by running:
@@ -66,34 +64,33 @@ Remember: only make changes to the files in this repo
 ( or to ther symlink names, which is the same thing )
 if those change would be generally useful for the majority of projects,
 and then merge them back in.
+For changes which are only interesting for a given project
+you must use other files to achieve the same effects.
 
-Otherwise, you must use other files to achieve the same effects.
+# Warning: data loss
 
-# warning: data loss
+All output and auxiliary files are put in the output dirs specified in the makefile.
+**Do not put anything valuable inside those dirs**, since `make clean` will wipe them out!!!
 
-all output and auxiliary files are put in the output dirs specified in the makefile.
+# Rationale
 
-**DO NOT PUT ANYTHING VALUABLE INSIDE THOSE DIRS**, since `make clean` will wipe them out!!!
+The advantage of this submodule is obvious: centralizing all shared file developement in one place.
 
-# rationale
+The problem with this submodule is a problem because you have to copy it up once for every latex repo, and this takes up space
 
-the advantage of this submodule is obvious: centralizing all shared file developement in one place.
-
-the problem with this submodule is a problem because you have to copy it up once for every latex repo, and this takes up space
-
-however, we have considered that this is currently the best alternative since this repo is quite small
+However, we have considered that this is currently the best alternative since this repo is quite small
 and because the other alternatives are either unstable or put too much burden on the user.
 
-## alternatives to use less space
+## Alternatives to use less space
 
-### clone into search paths
+### Clone into search paths
 
-files which have search paths for example `.sty`, could be put once on search path for every version.
+Files which have search paths for example `.sty`, could be put once on search path for every version.
 as explained in https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path
 
-this does not apply to `makefile` or `.gitignore` since there is no search path for thoes AFAIK.
+This does not apply to `makefile` or `.gitignore` since there is no search path for thoes AFAIK.
 
-however AFAIK there is no automatic way to manage multiple versions of files in a search path.
+However AFAIK there is no automatic way to manage multiple versions of files in a search path.
 
 The best we could come up with was to:
 
@@ -111,7 +108,7 @@ The best we could come up with was to:
 
     so that only the developement file woudl be kept
 
-however this has the following shortcomings:
+However this has the following shortcomings:
 
 - possibility of name conflicts with other packages
 
@@ -128,21 +125,21 @@ however this has the following shortcomings:
 I believe this adds a startup and maintainance barrier that is too large,
 and that it is better to simply use up a little more memory.
 
-## why output dirs are not on the repo
+## Why output dirs are not on the repo
 
-it would be nice to keep the `_out/` in the main repo to make that even clear for users
-that this dir will contain stuff
+It would be nice to keep the `_out/` in the main repo to make that even clear for users
+that this dir will contain stuff.
 
-however git cannot currently track empty dirs
+However git cannot currently track empty dirs.
 
-of course, one could put a dummy file like `.gitkeep` or `readme.md` inside the dir to keep it
+Of course, one could put a dummy file like `.gitkeep` or `readme.md` inside the dir to keep it.
 
-however any file put into those dirs could conflict with output files
-(what if the program output is called `.gitkeep` or `readme.md` ?)
+However any file put into those dirs could conflict with output files
+(what if the program output is called `.gitkeep` or `readme.md` ?).
 
-since `_out/` is such a rare name and obviously not a place where users should put their important files,
+Since `_out/` is such a rare name and obviously not a place where users should put their important files,
 a design decision was made to keep it out of the repo.
 
-furthermore dataloss is an inevitable possible consequense of `make clean`,
+Furthermore dataloss is an inevitable possible consequense of `make clean`,
 and even keeping the `_out` in the repo would not prevent people from losing their data
 ( it might even increase the chances that someone puts something in there... )

@@ -2,10 +2,7 @@
 
 ##TODO
 #
-#- extract upload_tag automatically
-#- put docs on a multiline var to avoid tons of echos and quoting hell
-
-override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+#- put help target echo on a multiline var to avoid tons of echos and quoting hell
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
 override PARAMS_FILE 		:= makefile-params
@@ -25,6 +22,7 @@ override OUT_DIR  	?= _out/
 	#TODO: get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
 #override AUX_DIR  	?= _aux/
 override AUX_DIR  	?= $(OUT_DIR)
+override DIST_DIR  	?= _dist/
 
 	#extension of output:
 override OUT_EXT 	?= .pdf
@@ -37,15 +35,23 @@ override LINE		?= 1
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
 override VIEWER 	?= okular --unique -p $$PAGE
 	#default upload tag, name of directory under which zip file will go
-override UPLOAD_TAG ?= 1.2
-override FTP_HOST 	?=
-override FTP_USER 	?=
+override TAG 					?= $(shell git describe --abbrev=0 --tags)
+override PROJECT_NAME			?= $(shell basename `pwd`)
+override FTP_HOST 				?=
+override FTP_USER 				?=
+override REMOTE_SUBDIR_PREF 	?=
+override REMOTE_SUBDIR 			?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
+	#name or root directory inside of the zip
+override IN_ZIP_NAME 	?= $(PROJECT_NAME)-$(TAG)
 
 	#compile command
 override CC_LATEX 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
 override CC_MD	 		?= pandoc -s --toc --mathml -N
 
 override MEDIA_GEN_DIR ?= ./media-gen/
+
+override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
@@ -85,7 +91,7 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.md
 	$(CC_MD) -o "$@" "$<"
 
-clean:
+clean: distclean
 	rm -rf $(OUT_DIR) $(AUX_DIR)
 	find $(IN_DIR) -type f \( \
 		-iname '*.aux' -o -iname '*.glo' -o -iname '*.idx' -o -iname '*.log' -o -iname '*.toc' -o \
@@ -96,19 +102,36 @@ clean:
 		-iname '*.mtc1' -o -iname '*.synctex.gz' -o -iname '*.ps' \) \
 		-delete
 	if [ -f $(MEDIA_GEN_DIR)makefile ]; then \
-		make -C $(MEDIA_GEN_DIR) clean	;\
+	   make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
-	@echo "REMOVED OUTPUT FILES BY EXTENSION IN: ."
-	@echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
-	@echo $(ERASE_MSG)
+	echo "REMOVED OUTPUT FILES BY EXTENSION IN: ."
+	echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
+	echo $(ERASE_MSG)
 
 #generate distribution, for ex: dir with pdfs or zip with pdfs
-dist:
-	#TODO implement
+dist: all
+	mkdir -p $(DIST_DIR)
+	if [ -z "$(TAG)" ]; then echo "TAG not specified"; fi
+	mkdir -p "$(DIST_DIR)/$(TAG)/pdf/"
+	cp -lr "$(OUT_DIR)"* "$(DIST_DIR)/$(TAG)/pdf/"
+	cd "$(DIST_DIR)/$(TAG)" &&\
+	find "pdf" -type f ! -iname "*$(OUT_EXT)" -delete &&\
+	mv pdf "$(IN_ZIP_NAME)-pdf" &&\
+	zip -r "pdf.zip" "$(IN_ZIP_NAME)-pdf" &&\
+	mv "$(IN_ZIP_NAME)-pdf" pdf
+	@echo 'DIST FILES WERE BE PUT INTO: $(DIST_DIR)'
+	@echo $(ERASE_MSG)
 
 #clean only the dist
 distclean:
-	#TODO implement
+	rm -rf $(DIST_DIR)
+
+#- remove any directory with the same name as the uploaded tag directory
+#- upload
+#
+#only files with the OUT_EXT will be kept in the output
+distup: dist
+	cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 
 help:
 	@echo 'compile all latex files under a given directory into pdfs'
@@ -125,7 +148,7 @@ help:
 	@echo ''
 	@echo 'targets are sorted by increasing usefulness, simplicity or grouped by function:'
 	@echo ''
-	@echo '- ubuntu_install_deps'
+	@echo '- install_deps_ubuntu'
 	@echo ''
 	@echo '    installs all the required dependencies supposing user is on a ubuntu machine'
 	@echo ''
@@ -137,11 +160,10 @@ help:
 	@echo ''
 	@echo '- view'
 	@echo ''
-	@echo '    requires the make target'
+	@echo '    implies the all target'
 	@echo ''
 	@echo '    view the file whose relative path without extension from IN_DIR'
 	@echo '    equals VIEW using the viewer program VIEWER'
-	@echo '    using the viewer program VIEWER'
 	@echo ''
 	@echo '    example:'
 	@echo ''
@@ -264,26 +286,9 @@ view: all
 		nohup $(VIEWER) $(VIEW_OUT_PATH) >/dev/null & \
 	)
 
-ubuntu_install_deps:
+install_deps_ubuntu:
+	sudo apt-get install -y aptitude
 	sudo aptitude install -y texlive-full
+	sudo aptitude install -y pandoc
 	sudo aptitude install -y okular
-
-#- create what will be output to a web host on a temporary dir
-#- upload the files
-#- remove the temporary dir
-#
-#only files with the OUT_EXT will be kept in the output
-upload_output: all
-	if [ -z "$(UPLOAD_TAG)" ]; then echo "UPLOAD_TAG not specified"; fi
-	TMP_DIR="`mktemp -d --tmpdir latex.XXXXXX`" 			&&\
-	mkdir -p "$$TMP_DIR/$(UPLOAD_TAG)/tree/" 				&&\
-	cp -lr "$(OUT_DIR)"* "$$TMP_DIR/$(UPLOAD_TAG)/tree/" 	&&\
-	cd "$$TMP_DIR/$(UPLOAD_TAG)" 							&&\
-	pwd &&\
-	find "tree" -mindepth 1 ! -iname "*$(OUT_EXT)" -delete 	&&\
-	if [ ! "$(UPLOAD_TAG)" = "tree" ]; then mv "tree" "$(UPLOAD_TAG)"; fi	&&\
-	zip -r "$(UPLOAD_TAG)".zip "$(UPLOAD_TAG)"*								&&\
-	if [ ! "$(UPLOAD_TAG)" = "tree" ]; then mv "$(UPLOAD_TAG)" "tree" ; fi	&&\
-	cd ..																	&&\
-	lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(UPLOAD_TAG)\" \"$(REMOTE_SUBDIR)\"" &&\
-	rm -r "$$TMP_DIR"
+	sudo aptitude install -y lftp
