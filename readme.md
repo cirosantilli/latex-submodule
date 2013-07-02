@@ -24,14 +24,14 @@ and which you must install before using this project.
 ## POSIX
 
 This is designed to rely only on basic [POSIX 7 command line utilities](http://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html)
-such as `sh`, `cd` or `find`, and include extra utilities only when absolutelly necessary.
+such as `sh`, `cd`, `ln` or `find`, and include extra utilities only when absolutelly necessary.
 
 This means that it will be easier to use this project in a Linux distro
 or MAC-OS, since those are largely POSIX compliant out-of-the-box.
 
-Although Windows is not POSIX compliant out of the box,
-you can easily install most POSIX utilities in one go with either mingw or cygwin.
-Remember that those utilities must be in your PATH.
+Windows is not POSIX compliant out-of-the-box,
+but you can easily install most POSIX utilities in one go with packages such as mingw or cygwin.
+Remember that the utilities must be in your PATH.
 
 ## non-POSIX
 
@@ -124,22 +124,30 @@ This is the default target, that is, the will that will be run when you use just
 
 Makes all .tex and .md (markdown) files under IN_DIR (recursive) into pdfs.
 
-Puts outputs under `OUT_DIR` configuraion parameter.
+Puts outputs under a directory named `OUT_DIR` configuraion parameter.
+
+Empty directories are removed from the output.
 
 ## view
 
 Implies the all target
 
-View the file whose relative path without extension from IN_DIR
-equals VIEW using the viewer program VIEWER
+View the file whose relative path without extension from `IN_DIR`
+equals `VIEW` using the viewer program `VIEWER` as:
+
+    VIEWER VIEW
 
 Example:
 
     make view VIEWER=okular VIEW=subdir/index
 
+would run something like:
+
+    okular _out/subdir/index.pdf
+
 ## clean
 
-Remove OUT_DIR and AUX_DIR and any files which are any type output by either latex, pdflatex, bibtex or synctex
+Remove `OUT_DIR` and `AUX_DIR` and any files which are any type output by either latex, pdflatex, bibtex or synctex
 for example `.pdf`, `.ps`, `synctex.gz`, `.out`, etc.
 
 The removal of files under IN_DIR is done so that users who use their editors to compile

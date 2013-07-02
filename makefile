@@ -33,18 +33,18 @@ LINE		?= 1
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
 VIEWER 	?= okular --unique -p $$PAGE
 	#default upload tag, name of directory under which zip file will go
-TAG 					?= $(shell git describe --abbrev=0 --tags)
-PROJECT_NAME			?= $(shell basename `pwd`)
-FTP_HOST 				?=
-FTP_USER 				?=
-REMOTE_SUBDIR_PREF 		?=
-REMOTE_SUBDIR 			?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
+TAG 				?= $(shell git describe --abbrev=0 --tags)
+PROJECT_NAME		?= $(shell basename `pwd`)
+FTP_HOST 			?=
+FTP_USER 			?=
+REMOTE_SUBDIR_PREF 	?=
+REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 	#name or root directory inside of the zip
-IN_ZIP_NAME 	?= $(PROJECT_NAME)-$(TAG)
+IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
-	#compile command
-CC_LATEX 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
-CC_MD	 		?= pandoc -s --toc --mathml -N
+	#compile commands
+CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
+CC_MD	 	?= pandoc -s --toc --mathml -N
 
 MEDIA_GEN_DIR ?= ./media-gen/
 
@@ -68,7 +68,7 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
 .PHONY: all clean help install-deps-ubuntu media-gen mkdir upload_output view
 
-all: media-gen mkdir $(OUTS)
+all: media-gen mkdir $(OUTS) rm-empty
 	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
 	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
 	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
@@ -127,14 +127,24 @@ distclean:
 #- upload
 #
 #only files with the OUT_EXT will be kept in the output
+#
+#will attempt to upload the current tag only
 distup: dist
 	cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\"; mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 	#TODO 0 prevent rm -rf from failing if dir does not exist, this forces us to use `;` instead of &&
 	#the desired command would be:
 	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 
+#makes and uploads all tags
+#
+#useful when you want to move dist files to a new server
+distall: dist
+	#TODO 1 implement
+
+distupall: dist distup
+
 help:
-	@echo 'See the readme.md file for the documentation.'
+	@echo 'See the readme.md file in the submodule for the documentation.'
 
 #generate media generated programtically
 media-gen:
@@ -145,6 +155,9 @@ mkdir:
 	mkdir -p "$(OUT_DIR)"
 	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
+
+rm-empty:
+	find $(OUT_DIR) -depth -type d -exec rmdir {} \; 2>/dev/null
 
 view: all
 	( \
