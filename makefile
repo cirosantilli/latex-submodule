@@ -108,9 +108,6 @@ clean: distclean
 
 #generate distribution, for ex: dir with pdfs or zip with pdfs
 dist: all
-ifeq()
-	$(echo $(echo a) )
-
 	mkdir -p $(DIST_DIR)
 	if [ -z "$(TAG)" ]; then echo "TAG not specified"; fi
 	mkdir -p "$(DIST_DIR)/$(TAG)/pdf/"
