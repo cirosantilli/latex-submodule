@@ -3,53 +3,52 @@
 #- 1 handle case in which repo has no tags
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
-override PARAMS_FILE 		:= makefile-params
-override PARAMS_FILE_LOCAL 	:= makefile-params-local
+PARAMS_FILE 		:= makefile-params
+PARAMS_FILE_PRIVATE	:= makefile-params-private
 
 -include $(PARAMS_FILE)
--include $(PARAMS_FILE_LOCAL)
+-include $(PARAMS_FILE_PRIVATE)
 
 	#extension of input files:
-override IN_EXTS   	?= .tex .md
+IN_EXTS   	?= .tex .md
 	#directory from which input files come. slash termianted:
-override IN_DIR   	?= ./src/
+IN_DIR   	?= ./src/
 
 	#dir where output files such as .pdf will be put. slash terminated:
-override OUT_DIR  	?= _out/
+OUT_DIR  	?= _out/
 	#dir where auxiliary files such as `.out` will be put. slash terminated.
 	#TODO 1 get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
 #override AUX_DIR  	?= _aux/
-override AUX_DIR  	?= $(OUT_DIR)
-override DIST_DIR  	?= _dist/
+AUX_DIR  	?= $(OUT_DIR)
+DIST_DIR  	?= _dist/
 
 	#extension of output:
-override OUT_EXT 	?= .pdf
+OUT_EXT 	?= .pdf
 
 	#basename without extension of file to view:
-override VIEW		?= index
+VIEW		?= index
 	#uses synctex to go to the page corresponding to the given line.
-override LINE		?= 1
+LINE		?= 1
 	#viewer command used to view the output.
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
-override VIEWER 	?= okular --unique -p $$PAGE
+VIEWER 	?= okular --unique -p $$PAGE
 	#default upload tag, name of directory under which zip file will go
-override TAG 					?= $(shell git describe --abbrev=0 --tags)
-override PROJECT_NAME			?= $(shell basename `pwd`)
-override FTP_HOST 				?=
-override FTP_USER 				?=
-override REMOTE_SUBDIR_PREF 	?=
-override REMOTE_SUBDIR 			?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
+TAG 					?= $(shell git describe --abbrev=0 --tags)
+PROJECT_NAME			?= $(shell basename `pwd`)
+FTP_HOST 				?=
+FTP_USER 				?=
+REMOTE_SUBDIR_PREF 		?=
+REMOTE_SUBDIR 			?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 	#name or root directory inside of the zip
-override IN_ZIP_NAME 	?= $(PROJECT_NAME)-$(TAG)
+IN_ZIP_NAME 	?= $(PROJECT_NAME)-$(TAG)
 
 	#compile command
-override CC_LATEX 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
-override CC_MD	 		?= pandoc -s --toc --mathml -N
+CC_LATEX 		?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
+CC_MD	 		?= pandoc -s --toc --mathml -N
 
-override MEDIA_GEN_DIR ?= ./media-gen/
+MEDIA_GEN_DIR ?= ./media-gen/
 
-override ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
-
+ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
@@ -67,7 +66,7 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 #remove automatic rules:
 .SUFFIXES:
 
-.PHONY: all clean help media-gen mkdir ubuntu_install upload_output view
+.PHONY: all clean help install-deps-ubuntu media-gen mkdir upload_output view
 
 all: media-gen mkdir $(OUTS)
 	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
@@ -108,9 +107,6 @@ clean: distclean
 
 #generate distribution, for ex: dir with pdfs or zip with pdfs
 dist: all
-ifeq()
-	$(echo $(echo a) )
-
 	mkdir -p $(DIST_DIR)
 	if [ -z "$(TAG)" ]; then echo "TAG not specified"; fi
 	mkdir -p "$(DIST_DIR)/$(TAG)/pdf/"
@@ -157,7 +153,7 @@ view: all
 		nohup $(VIEWER) $(VIEW_OUT_PATH) >/dev/null & \
 	)
 
-install_deps_ubuntu:
+install-deps-ubuntu:
 	sudo apt-get install -y aptitude
 	sudo aptitude install -y texlive-full
 	sudo aptitude install -y pandoc
