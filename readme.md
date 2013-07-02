@@ -397,8 +397,8 @@ you must use other files to achieve the same effects.
 To make the most of this template,
 you can configure your editor of choice to use it.
 
-All you need is an editor which supports sh commands,
-specially if you can make keybindigs (say F6) to trigger sh commands.
+All you need is an editor which supports `sh` commands,
+specially if you can make keybindigs (say F6) to trigger `sh` commands.
 
 ## Vim examples
 
@@ -480,3 +480,7 @@ a design decision was made to keep it out of the repo.
 Furthermore data loss is an inevitable possible consequence of `make clean`,
 and even keeping the `_out` in the repo would not prevent people from losing their data
 ( it might even increase the chances that someone puts something in there... )
+
+# TODO
+
+- improve editor configuration doc

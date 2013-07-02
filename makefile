@@ -28,8 +28,8 @@ LINE		?= 1
 	#viewer command used to view the output.
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
 VIEWER 	?= okular --unique -p $$PAGE
-	#default upload tag, name of directory under which zip file will go
-TAG 				?= $(shell git describe --abbrev=0 --tags)
+	#TODO 1 make this = latest if we are not currently on a version
+TAG 				?= $(shell git describe --abbrev=0 --tags 2>/dev/null)
 PROJECT_NAME		?= $(shell basename `pwd`)
 FTP_HOST 			?=
 FTP_USER 			?=
