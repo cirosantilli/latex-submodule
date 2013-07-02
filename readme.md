@@ -16,6 +16,48 @@ Latex shared files, meant to be factor out code amongst latex projects
 A live example that illustrates the usage of this submodule.
 can be found at: <https://github.com/cirosantilli/latex-cheat>
 
+# Dependencies
+
+This section describes the utilities on which this project depends,
+and which you must install before using this project.
+
+## POSIX
+
+This is designed to rely only on basic [POSIX 7 command line utilities](http://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html)
+such as `sh`, `cd` or `find`, and include extra utilities only when absolutelly necessary.
+
+This means that it will be easier to use this project in a Linux distro
+or MAC-OS, since those are largely POSIX compliant out-of-the-box.
+
+Although Windows is not POSIX compliant out of the box,
+you can easily install most POSIX utilities in one go with either mingw or cygwin.
+Remember that those utilities must be in your PATH.
+
+## non-POSIX
+
+The non POSIX commdependencies are:
+
+- git: this should be used as a git submodule of another git repo.
+
+- pdflatex (optional): used to transform `.tex` into `.pdf`.
+
+- bibtex (optional): required if you want to use `.bib` bibliography files with latex.
+
+- pandoc (optional): required if you want to compile `.md` markdown files.
+
+- lftp (optional): required if you want to upload your output files via ftp.
+
+For systems which have some sort of command line package manager,
+such as Ubuntu's `apt-get` or Fedora's `yum`,
+there may be a make target of the type: `install-deps-XXX`
+which installs in one go all the non-POSIX requirements.
+
+## Prior knowledge
+
+Although it is possible (and a design goal) to use this project without much prior knowledge,
+understanding the very basics of the dependency utilities will be of great help
+if you want to understand what is going on, and easily guess how to do new things.
+
 # Installation
 
 This should be used as a submodule to latex projects.
@@ -56,27 +98,210 @@ what to do if symlink names already exist. To use it do:
 # Usage
 
 Once installed, all the usage is based on `make`,
-and you can get usage information by running:
 
-    make help
+See:
 
-Remember: only make changes to the files in this repo
+- [Make targets](#make-targets) to know what you can do
+
+- [Make configuration](#make-configuration) for a description of how to use the configuration
+    files and what each option does.
+
+# Make targets
+
+For those unfamiliar with make: you can use targets simply as:
+
+    make target-name
+
+Targets are sorted by increasing usefulness, simplicity or grouped by similarity of function.
+
+## install-deps-ubuntu
+
+Installs all the required dependencies supposing user is on a ubuntu machine
+
+## all
+
+This is the default target, that is, the will that will be run when you use just `make` without arguments.
+
+Makes all .tex and .md (markdown) files under IN_DIR (recursive) into pdfs.
+
+Puts outputs under `OUT_DIR` configuraion parameter.
+
+## view
+
+Implies the all target
+
+View the file whose relative path without extension from IN_DIR
+equals VIEW using the viewer program VIEWER
+
+Example:
+
+    make view VIEWER=okular VIEW=subdir/index
+
+## clean
+
+Remove OUT_DIR and AUX_DIR and any files which are any type output by either latex, pdflatex, bibtex or synctex
+for example `.pdf`, `.ps`, `synctex.gz`, `.out`, etc.
+
+The removal of files under IN_DIR is done so that users who use their editors to compile
+the pdfs on the same directory as the tex sources will also get a clean repo.
+
+It is however recommended that users configure their editors to use the makefile via command bindings.
+
+# Make configuration
+
+You can configure the make parameters in the following ways:
+
+- command line arguments
+- makefile-params file
+- makefile-params-private file
+
+## Command line arguments
+
+Those follow the normal make syntax:
+
+    make PARAM=value
+
+It has precedence over all other methods of specifying parameters,
+but has the disadvantage that you have to type them every time.
+
+## makefile-params
+
+The `makefile-params` and `makefile-params-private` shall be put on the same directory as the makefile.
+
+Those files use regular makefile syntax, but it may *not* contain any rules,
+only variable definitions and possibly intermediate computation steps to reach the values.
+
+For those unfamiliar with makefile syntax, this means that you should define parameters as:
+
+    PARAM := val
+
+where `PARAM` is the name of the parameter, and `val` is its value.
+There should be no trailling whitespace (`"val "` instead of `"val"`), as those are included in the vales.
+
+Any of those files may not exist, in which case it is as if it was an empty file.
+
+The difference between `makefile-params` and `makefile-params-private` is that the private version
+shall not be tracked by git, and therefore can contain settings that
+vary between different users of the same project
+
+The local version shall be run by make *after* the non local one,
+therefore any definition done there with `:=` shall override values in the non local params file
+while definitions done with `?=` shall provide default values in case those are not yet defined
+
+For example, `makefile-params` could contain:
+
+    FTP_HOST := a.com
+    A := $(shell echo -n username )
+    FTP_USER := $(A)
+
+Now if `makefile-params-private` contains:
+
+    FTP_HOST := b.com
+    FTP_USER ?= username2
+
+Then in the end, the configuration will be `FTP_HOST := b.com` (because is was defined with `:=`)
+
+    FTP_HOST := b.com
+
+Because is was defined with `:=` in the local file which is read afterwards and
+
+    FTP_USER := b.com
+
+Because is was defined with `?=` in the local file
+
+Each parameter has a default value which shall be taken in case it does not appear in the
+parameter files.
+
+The default value may equal the empty string,
+in which case it shall be noted as EMPTY on this documentation.
+
+It is recommended that you use the default values whenever you can unless you have a good reason not to do so,
+since it will be easier for people to understand your project then.
+
+If you use a variable with a supported name as an intemediate buffer,
+dont forget to unsed that variable before the end, or it shall be taken as a parameter value
+
+Example ( highly *not* recommended usage, but valid ):
+
+    FTP_USER = a
+    b = FTP_USER
+    unset FTP_USER
+
+Those parameters can be equally given on the command line to make using the usual syntax
+
+    make PARAM_NAME=PARAM_VAL
+
+The following configuration parameters are supported:
+
+## IN_DIR
+
+Directory which shall contain all of the .tex source files
+
+`IN_DIR` must not be `.` Rationale: only way to clean editor generated
+files such as .pdf s which are put on the same directory as the .tex
+is removing files by extension, but it is possible that users want to
+include pdfs as media in their project, and that media would get wiped out
+by clean also. It would be possible to get around that by not removing
+files under certain directories, but that would be annoying to implement
+since whenever a new directory is created it would be necessary to add it
+to the dont clear directory list.
+
+Default value: `src/`
+
+## OUT_DIR
+
+Directory which shall contain the output files such as `.pdf`, but not necessarily
+auxiliary files wuch as `.aux`, which shall be put in `AUX_DIR`
+
+**Do not put anything valuable inside this dirs**,
+since it is ignored by `.gitignore` and `make clean` will wipe it out!
+
+Default value: `_out/`.
+
+## FTP_HOST
+
+Host to upload output files to
+
+Default: `EMPTY`
+
+## FTP_USER
+
+Username to connect to the ftp host.
+
+Default value: `EMPTY`.
+
+# When should you modify a file in this directory
+
+Only make changes to the files in this directory
 ( or to ther symlink names, which is the same thing )
 if those change would be generally useful for the majority of projects,
 and then merge them back in.
+
 For changes which are only interesting for a given project
 you must use other files to achieve the same effects.
 
-# Warning: data loss
+# Editor configuration
 
-All output and auxiliary files are put in the output dirs specified in the makefile.
-**Do not put anything valuable inside those dirs**, since `make clean` will wipe them out!!!
+To make the most of this template,
+you can configure your editor of choice to use it.
+
+All you need is an editor which supports sh commands,
+specially if you can make keybindigs (say F6) to trigger sh commands.
+
+## Vim examples
+
+Example of vim configuration for forward make:
+
+    au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe :sil ! make view VIEW=%:r LINE=' . line(.) . '<CR>
 
 # Rationale
 
+This section discusses design choices made for this repo.
+
 The advantage of this submodule is obvious: centralizing all shared file developement in one place.
 
-The problem with this submodule is a problem because you have to copy it up once for every latex repo, and this takes up space
+The problem with this submodule is a problem
+because you have to copy it up once for every latex repo, and this takes up space.
 
 However, we have considered that this is currently the best alternative since this repo is quite small
 and because the other alternatives are either unstable or put too much burden on the user.
@@ -86,7 +311,7 @@ and because the other alternatives are either unstable or put too much burden on
 ### Clone into search paths
 
 Files which have search paths for example `.sty`, could be put once on search path for every version.
-as explained in https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path
+as explained in <https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path>
 
 This does not apply to `makefile` or `.gitignore` since there is no search path for thoes AFAIK.
 
