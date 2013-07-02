@@ -1,7 +1,3 @@
-##TODO
-#
-#- 1 handle case in which repo has no tags
-
 	#this file shall be sourced here. It should only contain project specific versions of the param
 PARAMS_FILE 		:= makefile-params
 PARAMS_FILE_PRIVATE	:= makefile-params-private
@@ -48,7 +44,7 @@ CC_MD	 	?= pandoc -s --toc --mathml -N
 
 MEDIA_GEN_DIR ?= ./media-gen/
 
-ERASE_MSG := 'DONT PUT ANYTHING IMPORTANT IN THOSE DIRECTORIES SINCE `make clean` ERASES THEM!!!'
+ERASE_MSG := 'Dont put anything important in those directories since `make clean` erases them!'
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
@@ -70,8 +66,8 @@ VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
 all: media-gen mkdir $(OUTS) rm-empty
 	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
-	@echo 'AUXILIARY FILES WERE PUT INTO:    $(AUX_DIR)'
-	@echo 'OUTPUT    FILES WERE BE PUT INTO: $(OUT_DIR)'
+	@echo 'Auxiliary files put into: $(AUX_DIR)'
+	@echo 'Output    files put into: $(OUT_DIR)'
 	@echo $(ERASE_MSG)
 
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
@@ -101,14 +97,15 @@ clean: distclean
 	if [ -f $(MEDIA_GEN_DIR)makefile ]; then \
 	   make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
-	echo "REMOVED OUTPUT FILES BY EXTENSION IN: ."
-	echo "REMOVED DIRS: $(OUT_DIR) $(AUX_DIR)"
-	echo $(ERASE_MSG)
+	echo "Removed output files by extension in: $(IN_DIR)"
+	echo "Removed dirs: $(OUT_DIR) $(AUX_DIR)"
 
 #generate distribution, for ex: dir with pdfs or zip with pdfs
 dist: all
-	mkdir -p $(DIST_DIR)
-	if [ -z "$(TAG)" ]; then echo "TAG not specified"; fi
+ifeq ($(strip $(TAG)),)
+	@echo 'ERROR: TAG is currently empty. First give a tag to the current repo with `git tag`'
+	@exit 1
+endif
 	mkdir -p "$(DIST_DIR)/$(TAG)/pdf/"
 	cp -lr "$(OUT_DIR)"* "$(DIST_DIR)/$(TAG)/pdf/"
 	cd "$(DIST_DIR)/$(TAG)" &&\
@@ -116,7 +113,7 @@ dist: all
 	mv pdf "$(IN_ZIP_NAME)-pdf" &&\
 	zip -r "pdf.zip" "$(IN_ZIP_NAME)-pdf" &&\
 	mv "$(IN_ZIP_NAME)-pdf" pdf
-	@echo 'DIST FILES WERE BE PUT INTO: $(DIST_DIR)'
+	@echo 'Dist files were be put into: $(DIST_DIR)'
 	@echo $(ERASE_MSG)
 
 #clean only the dist
@@ -153,7 +150,7 @@ media-gen:
 mkdir:
 	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
-	@echo "MADE DIRS: $(OUT_DIR) $(AUX_DIR)"
+	@echo "Made dirs: $(OUT_DIR) $(AUX_DIR)"
 	@echo $(ERASE_MSG)
 
 rm-empty:
