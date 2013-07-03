@@ -1,3 +1,6 @@
+#TODO 1 accept view a full path
+#TODO 1 implement distall target
+
 	#this file shall be sourced here. It should only contain project specific versions of the param
 PARAMS_FILE 		:= makefile-params
 PARAMS_FILE_PRIVATE	:= makefile-params-private
@@ -28,8 +31,12 @@ LINE		?= 1
 	#viewer command used to view the output.
 	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
 VIEWER 	?= okular --unique -p $$PAGE
-	#TODO 1 make this = latest if we are not currently on a version
-TAG 				?= $(shell git describe --abbrev=0 --tags 2>/dev/null)
+
+TAG 				?= $(shell git tag --contains HEAD | sort | head -n1 )
+TAG_DEFAULT			?= latest
+ifeq ($(strip $(TAG)),)
+	TAG := $(TAG_DEFAULT)
+endif
 PROJECT_NAME		?= $(shell basename `pwd`)
 FTP_HOST 			?=
 FTP_USER 			?=
@@ -55,8 +62,8 @@ STYS		:= $(wildcard *.sty)
 BIBS		:= $(wildcard *.bib)
 
 	#path of tex file to be viewed (needed by synctex):
-VIEW_TEX_PATH	:= $(IN_DIR)$(VIEW)$(IN_EXT)
-	#path of output file to be viewed:
+VIEW_TEX_PATH	:= $(VIEW)
+	#TODO calculate this supposing view is a full path
 VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
 
 #remove automatic rules:
@@ -136,7 +143,6 @@ distup: dist
 #
 #useful when you want to move dist files to a new server
 distall: dist
-	#TODO 1 implement
 
 distupall: dist distup
 

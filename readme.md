@@ -127,26 +127,31 @@ This is the default target, that is, the will that will be run when you use just
 
 Makes all .tex and .md (markdown) files under IN_DIR (recursive) into pdfs.
 
-Puts outputs under a directory named `OUT_DIR` configuration parameter.
+Puts outputs under a directory named [OUT_DIR](#out_dir)
 
 Empty directories are removed from the output.
 
 ## view
 
-Implies the all target
+View output using a file viewer.
 
-View the file whose relative path without extension from `IN_DIR`
-equals `VIEW` using the viewer program `VIEWER` as:
+Implies the all target.
 
-    VIEWER VIEW
+The following parameters are used by this target:
+
+- [VIEWER](#viewer)
+- [VIEW](#view-parameter)
+- [LINE](#line)
 
 Example:
 
-    make view VIEWER=okular VIEW=subdir/index
+    make view VIEWER="okular -p $$PAGE" VIEW=subdir/index LINE=10
 
 would run something like:
 
-    okular _out/subdir/index.pdf
+    okular -p 2 _out/subdir/index.pdf
+
+supposing that line 10 is subdir/index correponds to page `2` of the pdf.
 
 ## dist
 
@@ -157,14 +162,14 @@ Current distribution types generated are:
 - a directory tree with all the files
 - a zip file containing the directory tree
 
-The distribution files are put under a dir named `DIST_DIR` under the following structure:
+The distribution files are put under a dir named [DIST_DIR](#dist_dir) under the following structure:
 
     $(TAG)pdf/
     $(TAG)pdf.zip
 
 where TAG is a configuration parameter.
 
-If `TAG` is `EMPTY`, the operation is aborted.
+If [TAG](#tag) is `EMPTY`, the operation is aborted.
 
 The `pdf/` subdir contains the pdf files of the original tree.
 
@@ -328,13 +333,76 @@ Default value: `src/`
 
 ### OUT_DIR
 
-Directory which shall contain the output files such as `.pdf`, but not necessarily
-auxiliary files such as `.aux`, which shall be put in `AUX_DIR`
+Directory where output files such as `.pdf` will be put after running [all](#all)
+
+Not necessarily the same as where auxiliary files such as `.aux` will be put, which is in [AUX_DIR](#aux_dir)
 
 **Do not put anything valuable inside this dirs**,
 since it is ignored by `.gitignore` and `make clean` will wipe it out!
 
 Default value: `_out/`.
+
+### AUX_DIR
+
+Directory where auxiliary files such as `.aux` will be put after running [all](#all)
+
+**Do not put anything valuable inside this dirs**,
+since it is ignored by `.gitignore` and `make clean` will wipe it out!
+
+For the time being, this cannot be different from `OUT_DIR`,
+although this is because of current technical limitations which we are trying to overcome.
+
+Default value: [OUT_DIR](#out_dir).
+
+### DIST_DIR
+
+Directory where distribution files will be put after running [dist](#dist).
+
+**Do not put anything valuable inside this dirs**,
+since it is ignored by `.gitignore` and `make clean` will wipe it out!
+
+Default value: `_dist/`.
+
+### VIEWER
+
+The viewer command, including the page in which the pdf should be open as a sh variable named `PAGE`.
+
+Default value:
+
+    okular -p $$PAGE
+
+where:
+
+- `-p` is the okular flag to select the initial page.
+
+- `$$PAGE` is a sh variable containing that page.
+
+The page is be determined at each invocation by using synctex with [LINE](#line)
+
+It has double dollar mark because it is a shell variable,
+so it is necessary to escape the makefile dollar.
+
+### VIEW parameter
+
+Full path of file being edited.
+
+Default value: `project_path/$(IN_DIR)/index.tex`
+
+This is tipically set by your editor as a command line argument to make as:
+
+    make VIEW=/path/to/project/src/file.tex
+
+### LINE
+
+Current line in current file of the editor.
+
+Is used by synctex to determine what pdf page that line corresponds to.
+
+This is tipically set by your editor as a command line argument to make as:
+
+    make LINE=1
+
+Default value: `1`.
 
 ### FTP_HOST
 
@@ -376,11 +444,19 @@ although this is not recommended since you lose the version order information.
 
 Default value:
 
-- if the current git repository has no tags, `EMPTY`
-- else, the name of the most recent tag in current branch, given by: `git describe --abbrev=0 --tags`
+- if the the HEAD commit (current commit) has no tags, it equals [TAG_DEFAULT](#tag_default)
+- else, the first of the tags in alphabetical (ASCII) order
 
-    Note that the most recent tag may not correspond to the current version
-    since in git versions may have no tags associated to them.
+In this way, you can upload a latest version of your project whenever you are not on a git tag.
+
+It is recommended that you don't name a git tag as [TAG_DEFAULT](#tag_default),
+since this would conflict with this default methodology.
+
+### TAG_DEFAULT
+
+The default value for TAG in case the HEAD has no tags.
+
+Default value: `latest`
 
 # When should you modify a file in this directory
 
