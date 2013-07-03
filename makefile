@@ -1,4 +1,3 @@
-#TODO 1 accept view a full path
 #TODO 1 implement distall target
 
 	#this file shall be sourced here. It should only contain project specific versions of the param
@@ -9,28 +8,21 @@ PARAMS_FILE_PRIVATE	:= makefile-params-private
 -include $(PARAMS_FILE_PRIVATE)
 
 	#extension of input files:
-IN_EXTS   	?= .tex .md
-	#directory from which input files come. slash termianted:
-IN_DIR   	?= ./src/
-
+IN_EXTS   	:= .tex .md
+IN_DIR   	?= src/
 	#dir where output files such as .pdf will be put. slash terminated:
 OUT_DIR  	?= _out/
 	#dir where auxiliary files such as `.out` will be put. slash terminated.
 	#TODO 1 get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
-#override AUX_DIR  	?= _aux/
+	#AUX_DIR  	?= _aux/
 AUX_DIR  	?= $(OUT_DIR)
 DIST_DIR  	?= _dist/
-
 	#extension of output:
-OUT_EXT 	?= .pdf
+OUT_EXT 	:= .pdf
 
-	#basename without extension of file to view:
 VIEW		?= index
-	#uses synctex to go to the page corresponding to the given line.
 LINE		?= 1
-	#viewer command used to view the output.
-	#$$PAGE is a bash variable that contains the page to open the document at. It is typically calculated by synctex in this makefile.
-VIEWER 	?= okular --unique -p $$PAGE
+VIEWER 		?= okular --unique -p $$PAGE
 
 TAG 				?= $(shell git tag --contains HEAD | sort | head -n1 )
 TAG_DEFAULT			?= latest
@@ -42,16 +34,16 @@ FTP_HOST 			?=
 FTP_USER 			?=
 REMOTE_SUBDIR_PREF 	?=
 REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
-	#name or root directory inside of the zip
+
+	#name or root directory inside of the zip:
 IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
-	#compile commands
 CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
 CC_MD	 	?= pandoc -s --toc --mathml -N
 
 MEDIA_GEN_DIR ?= ./media-gen/
 
-ERASE_MSG := 'Dont put anything important in those directories since `make clean` erases them!'
+ERASE_MSG 	:= 'Dont put anything important in those directories since `make clean` erases them!'
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
@@ -61,10 +53,7 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 STYS		:= $(wildcard *.sty)
 BIBS		:= $(wildcard *.bib)
 
-	#path of tex file to be viewed (needed by synctex):
-VIEW_TEX_PATH	:= $(VIEW)
-	#TODO calculate this supposing view is a full path
-VIEW_OUT_PATH	:= $(OUT_DIR)$(VIEW)$(OUT_EXT)
+VIEW_OUT_PATH:= $(shell echo `pwd`/$(OUT_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(pwd)/$(IN_DIR)(.*)\.[^.]*|\1$(OUT_EXT)|"))
 
 #remove automatic rules:
 .SUFFIXES:
@@ -164,7 +153,7 @@ rm-empty:
 
 view: all
 	( \
-		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW_TEX_PATH)" -o "$(VIEW_OUT_PATH)"`" ;\
+		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW)" -o "$(VIEW_OUT_PATH)"`" ;\
 		PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
 		nohup $(VIEWER) $(VIEW_OUT_PATH) >/dev/null & \
 	)

@@ -2,6 +2,8 @@ Latex shared files, meant to be factor out code amongst latex projects
 
 Compiled versions of this file can be found [here](http://cirosantilli.t15.org/latex-submodule/).
 
+You can also compile this yourself by using `make` in this directory.
+
 # Features
 
 - automate the make process, including bibtex and synctex
@@ -54,6 +56,9 @@ For systems which have some sort of command line package manager,
 such as Ubuntu's `apt-get` or Fedora's `yum`,
 there may be a make target of the type: `install-deps-XXX`
 which installs in one go all the non-POSIX requirements.
+
+If you manage to configure this project for use in any other system not mentioned here,
+please submit a pull request and we will be glad to merge it.
 
 ## Prior knowledge
 
@@ -117,6 +122,8 @@ For those unfamiliar with make: you can use targets simply as:
 
 Targets are sorted by increasing usefulness, simplicity or grouped by similarity of function.
 
+The make commands assume that you current dir is the same as the makefile.
+
 ## install-deps-ubuntu
 
 Installs all the required dependencies supposing user is on a ubuntu machine
@@ -125,7 +132,7 @@ Installs all the required dependencies supposing user is on a ubuntu machine
 
 This is the default target, that is, the will that will be run when you use just `make` without arguments.
 
-Makes all .tex and .md (markdown) files under IN_DIR (recursive) into pdfs.
+Makes all .tex and .md (markdown) files under [IN_DIR](#in_dir) (recursivelly) into pdfs.
 
 Puts outputs under a directory named [OUT_DIR](#out_dir)
 
@@ -193,7 +200,7 @@ It is recommended that you only upload certain stable versions when you feel tha
 and not every single development version, or you will have too many useless files in your server,
 taking up space and making users confused.
 
-You will need to set the following parameters in one of the [Makefile configuration](#makefile-configuration)
+You will need to set the following parameters in one of the [Makefile configuration](#make-configuration)
 parameters:
 
 - FTP_HOST: the ftp host. Example: `cirosantilli.t15.org`
@@ -205,7 +212,7 @@ They can be found in the control panel of your account.
 You will be prompted for the ftp password after running the command.
 
 Next, you must tell the server where to store your files.
-The location is given by the [REMOTE_SUBDIR](#REMOTE_SUBDIR) configuration parameter.
+The location is given by the [REMOTE_SUBDIR](#remote_subdir) configuration parameter.
 
 All remote files in the `REMOTE_SUBDIR` directory will be first removed before attempting the upload,
 so make sure that you don't set it to a useful directory.
@@ -318,9 +325,13 @@ The following configuration parameters are supported:
 
 ### IN_DIR
 
-Directory which shall contain all of the .tex source files
+Directory which shall contain all of the `.tex` source files
 
-`IN_DIR` must not be `.` Rationale: only way to clean editor generated
+Must be slash `/` terminated.
+
+Must be a realtive path from the project root, without starting with `./`.
+
+`IN_DIR` must not be `./`. Rationale: only way to clean editor generated
 files such as .pdf s which are put on the same directory as the .tex
 is removing files by extension, but it is possible that users want to
 include pdfs as media in their project, and that media would get wiped out
@@ -335,6 +346,8 @@ Default value: `src/`
 
 Directory where output files such as `.pdf` will be put after running [all](#all)
 
+Must be slash `/` terminated.
+
 Not necessarily the same as where auxiliary files such as `.aux` will be put, which is in [AUX_DIR](#aux_dir)
 
 **Do not put anything valuable inside this dirs**,
@@ -345,6 +358,10 @@ Default value: `_out/`.
 ### AUX_DIR
 
 Directory where auxiliary files such as `.aux` will be put after running [all](#all)
+
+Must be slash `/` terminated.
+
+Must be a realtive path from the project root, without starting with `./`.
 
 **Do not put anything valuable inside this dirs**,
 since it is ignored by `.gitignore` and `make clean` will wipe it out!
@@ -357,6 +374,10 @@ Default value: [OUT_DIR](#out_dir).
 ### DIST_DIR
 
 Directory where distribution files will be put after running [dist](#dist).
+
+Must be slash `/` terminated.
+
+Must be a realtive path from the project root, without starting with `./`.
 
 **Do not put anything valuable inside this dirs**,
 since it is ignored by `.gitignore` and `make clean` will wipe it out!
@@ -458,6 +479,52 @@ The default value for TAG in case the HEAD has no tags.
 
 Default value: `latest`
 
+# Editor configuration
+
+To make the most of this template,
+you can configure your editor of choice to use it.
+
+All you need is an editor which can:
+
+- trigger `sh` commands, via keybindigs. Ex: F5 runs `make`
+
+- insert some parameters about the current file in the shell command. Ex of an imaginary editor:
+
+        make VIEW=%FULLPATH% LINE=%CURRENT_LINE%
+
+    and then the editor shoud replace FULLPATH by the full path of the current file being edited
+    and CURRENT_LINE by the current line number, before giving the command to sh.
+
+The first thing you should keep in mind that you must issue the make commands from the same directory
+as the makefile, that is, the repo root. Therefore, you should prefix all your bindings with:
+
+    cd `git rev-parse --show-toplevel` &&
+
+so for example in our imaginary editor we would do:
+
+    <F5> --> make VIEW=%FULLPATH% LINE=%CURRENT_LINE%
+
+`git rev-parse --show-toplevel` is simply a git command that prints the full path of the repository root.
+
+If you manage to configure this project for use with any other editor not mentioned here,
+please submit a pull request and we will be glad to merge it.
+
+## Vim
+
+You could add the following lines to your `.vimrc`:
+
+    #make
+    au BufEnter,BufRead *.tex cal MapAllBuff( '<F5>'  , ':w<cr>:! cd `git rev-parse --show-toplevel` && make<cr>' )
+
+    #make clean
+    au BufEnter,BufRead *.tex cal MapAllBuff( '<S-F5>', ':w<cr>:! cd `git rev-parse --show-toplevel` && make clean<cr>' )
+
+    #make view
+    au BufEnter,BufRead *.tex cal MapAllBuff( '<F6>'  , ':w<cr>:exe '':sil ! cd `git rev-parse --show-toplevel` && make view VIEW=''''"%:p"'''' LINE=''''"'' . line(".") . ''"''''''<cr>' )
+
+To do inverse searches (pdf to tex) using git,
+you must configure your viewer to issue the following command: TODO
+
 # When should you modify a file in this directory
 
 Only make changes to the files in this directory
@@ -467,20 +534,6 @@ and then merge them back in.
 
 For changes which are only interesting for a given project
 you must use other files to achieve the same effects.
-
-# Editor configuration
-
-To make the most of this template,
-you can configure your editor of choice to use it.
-
-All you need is an editor which supports `sh` commands,
-specially if you can make keybindigs (say F6) to trigger `sh` commands.
-
-## Vim examples
-
-Example of vim configuration for forward make:
-
-    au BufEnter,BufRead *.tex nnoremap <F6> :w<CR>:exe :sil ! make view VIEW=%:r LINE=' . line(.) . '<CR>
 
 # Rationale
 
@@ -556,7 +609,3 @@ a design decision was made to keep it out of the repo.
 Furthermore data loss is an inevitable possible consequence of `make clean`,
 and even keeping the `_out` in the repo would not prevent people from losing their data
 ( it might even increase the chances that someone puts something in there... )
-
-# TODO
-
-- improve editor configuration doc
