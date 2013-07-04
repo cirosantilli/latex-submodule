@@ -105,7 +105,7 @@ what to do if symlink names already exist. To use it do:
 
 # Usage
 
-Once installed, all the usage is based on `make`.
+Once installed, the usage is based on `make`.
 
 See:
 
@@ -113,6 +113,54 @@ See:
 
 - [Make configuration](#make-configuration) for a description of how to use the configuration
     files and what each option does.
+
+## Recursive
+
+You can use this in two ways: recursive or non recursive.
+
+No configuration option is needed to indicate which mode you are on,
+it all depends if you intend to use subdirs or not.
+
+Recursive operation means that [IN_DIR](#in_dir) will be searched recursivelly for input files such as tex. Ex:
+
+    ~/.repo-root/a.sty
+    ~/.repo-root/src/a.tex
+    ~/.repo-root/src/subdir/a.tex
+
+will generate output like:
+
+    ~/.repo-root/_out/a.tex
+    ~/.repo-root/_out/subdir/a.tex
+
+This is recursive because you want to compile `a.tex` under `subdir`.
+
+Non recursive means that only files directly under [IN_DIR](#in_dir) will be considered, but not its subdirs.
+
+Ex:
+
+    ~/.repo-root/src/a.sty
+    ~/.repo-root/src/a.tex
+    ~/.repo-root/src/subdir-a.tex
+
+Which is not recursive since all input files are under `src`.
+
+The tradeoff is simple: if you intend recursive operation,
+you must then use the makefile provided with this project,
+and users must configure their editors to use that makefile.
+
+This may cause many users not to get involved into your project
+because of the entry barrier. Therefore, only use recursive operation
+if having subdirs will substantially increase the clarity of your project.
+
+Also, if you intend to use recursive operation,
+consider looking at the [Editor configuration](#editor-configuration) session.
+
+The reason why users must configure their editors for recursive operation is that
+dependencies such as `.sty` or `.bib` will be put on the toplevel (`~/.repo-root`)
+and the makefile is configured to make those visible to all subdirectories,
+while what all editors do by default is to take dependencies on the same dir as
+
+In non recursive operation, you just put all the dependencies in [IN_DIR](#in_dir) together with the tex files.
 
 # Make targets
 
@@ -496,15 +544,24 @@ All you need is an editor which can:
     and CURRENT_LINE by the current line number, before giving the command to sh.
 
 The first thing you should keep in mind that you must issue the make commands from the same directory
-as the makefile, that is, the repo root. Therefore, you should prefix all your bindings with:
+as the makefile, that is, the repo root. You can achieve this in the following ways:
 
-    cd `git rev-parse --show-toplevel` &&
+- prefix all your bindings with:
 
-so for example in our imaginary editor we would do:
+        cd `git rev-parse --show-toplevel` &&
 
-    <F5> --> make VIEW=%FULLPATH% LINE=%CURRENT_LINE%
+    so for example in our imaginary editor we would do:
 
-`git rev-parse --show-toplevel` is simply a git command that prints the full path of the repository root.
+        <F5> --> make VIEW=%FULLPATH% LINE=%CURRENT_LINE%
+
+    `git rev-parse --show-toplevel` is simply a git command that prints the full path of the repository root.
+
+- create some sort of project which users must select before workign with the files.
+
+    This strategy is common amongst IDEs: before using files in a project, you must first open
+    a configuration file which containt parameters for that project.
+
+    That file should specify the keybindings for the makefile.
 
 If you manage to configure this project for use with any other editor not mentioned here,
 please submit a pull request and we will be glad to merge it.
@@ -521,6 +578,11 @@ You could add the following lines to your `.vimrc`:
 
     #make view
     au BufEnter,BufRead *.tex cal MapAllBuff( '<F6>'  , ':w<cr>:exe '':sil ! cd `git rev-parse --show-toplevel` && make view VIEW=''''"%:p"'''' LINE=''''"'' . line(".") . ''"''''''<cr>' )
+
+This will however set this behaviour to all tex files.
+
+If you want this behaviour only for this project, you should put those commands on a
+`.vim` file and source it every time you want to work on your tex project.
 
 To do inverse searches (pdf to tex) using git,
 you must configure your viewer to issue the following command: TODO

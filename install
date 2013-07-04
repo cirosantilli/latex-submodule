@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+#helper script to install this submodule
+#creates necessary symlinks from outide this repo so that main repo can use this subrepo
+#consider using a template which already has this installed instead
+
 #TODO convert this to python
 #keep a symlink / symlinkd dest pair list
-
-#create necessary outide this repo so that main repo can use this subrepo
 
 set -u # error on undefined variable
 set -e # stop execution if one command returns != 0
@@ -16,31 +18,22 @@ CUR_DIR_BNAME="$( basename "$( pwd )" )"
 #shared files that will be symlinked into the repo root with the same basename
 FS_LN=( makefile .gitignore shared.sty shared-presentation.sty )
 
-#check that all targets symlink names are free
-for F in "${FS_LN[@]}" ; do
-    if [ -e ../"$F" ]; then
-        echo "$FILE_EXISTS_MESSAGE $F"
-        exit 1
-    fi
-done
-
-#TODO get rid of this, include it in the more general symlik / symlik dest pairs method
-if [ -e "../src/.gitignore" ]; then
-    echo "$FILE_EXISTS_MESSAGE src/.gitignore"
-    exit 1
-fi
-
 cd ..
 
 #make the symlinks
 for F in "${FS_LN[@]}"; do
-    ln -s "$CUR_DIR_BNAME"/"$F" "$F"
+    if [ -e "$F" ]; then
+        echo "File already exists, you should rename it to something else: $F"
+    else
+        echo "Symlink created: ../$F"
+        cp -ns "$CUR_DIR_BNAME"/"$F" "$F"
+    fi
 done
 
-#make the symlinks
 mkdir -p src
 cd src
-ln -s ../"$CUR_DIR_BNAME"/.gitignore-exts .gitignore
+cp -ns ../"$CUR_DIR_BNAME"/.gitignore-exts .gitignore
+cp -ns ../shared.sty shared.sty
 
-echo 'INSTALLATION FINISHED. CONSIDER ADDING GENERATED FILES TO PROJECT WITH: `git add`'
+echo 'Installation finished. consider adding generated files to project with: `git add`'
 exit 0

@@ -127,6 +127,7 @@ distup: dist
 	#TODO 0 prevent rm -rf from failing if dir does not exist, this forces us to use `;` instead of &&
 	#the desired command would be:
 	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
+	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror --delete-first -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 
 #makes and uploads all tags
 #
