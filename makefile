@@ -38,7 +38,8 @@ REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 	#name or root directory inside of the zip:
 IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
-CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -interaction=nonstopmode -output-directory "$(AUX_DIR)"
+CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -output-directory "$(AUX_DIR)"
+CC_LATEX_INTERACTION ?= -interaction=nonstopmode
 CC_MD	 	?= pandoc -s --toc --mathml -N
 
 MEDIA_GEN_DIR ?= ./media-gen/
@@ -69,11 +70,11 @@ all: media-gen mkdir $(OUTS) rm-empty
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 	#make pdf with bibtex and synctex:
-	$(CC_LATEX) "$<"
+	$(CC_LATEX) $(CC_LATEX_INTERACTION) "$<"
 	#allowing for error here in case tex has no bib files:
 	-bibtex "$(AUX_DIR)$*"
-	$(CC_LATEX) "$<"
-	$(CC_LATEX) -synctex=1 "$<"
+	$(CC_LATEX) -interaction=nonstopmode "$<"
+	$(CC_LATEX) -interaction=nonstopmode -synctex=1 "$<"
 	#move output to out dir if they are different:
 	if [ ! $(AUX_DIR) = $(OUT_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"; fi
 

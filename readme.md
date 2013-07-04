@@ -107,6 +107,10 @@ what to do if symlink names already exist. To use it do:
 
 Once installed, the usage is based on `make`.
 
+You may choose to leave some functions up to your editor,
+or configure your editor to rely entirely on the make given.
+See [Editor configuration](#editor-configuration) for more information.
+
 See:
 
 - [Make targets](#make-targets) to know what you can do
@@ -123,33 +127,46 @@ it all depends if you intend to use subdirs or not.
 
 Recursive operation means that [IN_DIR](#in_dir) will be searched recursivelly for input files such as tex. Ex:
 
-    ~/.repo-root/a.sty
-    ~/.repo-root/src/a.tex
-    ~/.repo-root/src/subdir/a.tex
+    ~/.repo-root/makefile
+    ~/.repo-root/shared.sty
+    ~/.repo-root/src/index.tex
+    ~/.repo-root/src/index1.tex
+    ~/.repo-root/src/subdir/index.tex
 
 will generate output like:
 
-    ~/.repo-root/_out/a.tex
-    ~/.repo-root/_out/subdir/a.tex
+    ~/.repo-root/_out/index.tex
+    ~/.repo-root/_out/subdir/index.tex
 
-This is recursive because you want to compile `a.tex` under `subdir`.
+This is recursive because you want to compile `index.tex` under `subdir`.
+
+The `index.sty` is visible to both `index.tex` and `subdir/index.tex`
+when made with the makefile because it is at the repository root.
+
+`index1.sty` is visible only to `index.tex`, no matter how it was made.
 
 Non recursive means that only files directly under [IN_DIR](#in_dir) will be considered, but not its subdirs.
 
 Ex:
 
-    ~/.repo-root/src/a.sty
-    ~/.repo-root/src/a.tex
-    ~/.repo-root/src/subdir-a.tex
+    ~/.repo-root/makefile
+    ~/.repo-root/shared.sty
+    ~/.repo-root/src/index.sty
+    ~/.repo-root/src/index.tex
+    ~/.repo-root/src/subdir-index.tex
 
 Which is not recursive since all input files are under `src`.
+
+The `index.sty` is visible to both `index.tex` and `subdir-index.tex`
+even when made with most tex IDEs, since it is no the same directory as those files.
+`shared.sty` is however only visible to them when the `makefile` is used.
 
 The tradeoff is simple: if you intend recursive operation,
 you must then use the makefile provided with this project,
 and users must configure their editors to use that makefile.
 
 This may cause many users not to get involved into your project
-because of the entry barrier. Therefore, only use recursive operation
+because of the entry barrier of configuring their editors. Therefore, only use recursive operation
 if having subdirs will substantially increase the clarity of your project.
 
 Also, if you intend to use recursive operation,
