@@ -12,7 +12,7 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{makeidx}          % makes index
-\usepackage{graphicx}
+\usepackage{graphicx}         % graphicspath
 \usepackage{natbib}	          % citep
 \usepackage{verbatim}         % comment enviroment
 \usepackage[utf8]{inputenc}   % á à â work, but not 中文
@@ -37,8 +37,8 @@
 
 %look under the following paths for figures:
 
-\graphicspath{{./media/}}
-\graphicspath{{./media-gen/out/}}
+%if you use this twice, the second time destroys the first:
+\graphicspath{ {./media/}{./media-gen/out/} }
 
 %those paths are given relative to the current files, not current directories
 
@@ -152,8 +152,6 @@
 %- named functions -%
 \newcommand{\indQx}{\mathbf{1}_{\Q}(x)}	    %- rational indicator function of x -%
 \newcommand{\indQ}[1]{\mathbf{1}_{\Q}(#1)}  %- rational indicator function -%
-
-
 
 % to be used in the future
 % \newcommand{\hypotenuse}{\ensuremath{a^{2}+y^{2}}} works either in or out of equation. ($$ inside equation == not good)
