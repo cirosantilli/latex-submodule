@@ -68,13 +68,6 @@ if you want to understand what is going on, and easily guess how to do new thing
 
 # Installation
 
-This should be used as a submodule to latex projects.
-The advantage of doing so is that whenever updates are done to the shared files,
-you can easily add them to other repository by:
-
-    cd submodule
-    git pull
-
 ## New project
 
 For a new project, consider using the latex template located at:
@@ -87,20 +80,25 @@ See the instructions on the readme for how to use that template.
 
 Include this as a submodule in your existing git repo as:
 
-    git submodule add git://github.com/USERNAME/latex.git shared
+    git submodule add git://github.com/cirosantilli/latex.git shared
     git add .gitmodules
 
 At the repo root then symlink from the required place in
-the repo into this submodule. For example, to use the makefile do:
+the repo into this submodule. For example, to use the makefile do you want
+a struture such as:
 
-    git-root/submodule/makefile
-    git-root/makefile               ( -> submodule/makefile)
+    git-root/shared/makefile
+    git-root/makefile               ( -> shared/makefile)
+
+which you can achieve via:
+
+    ln -s shared/makefile makefile
 
 The `install` script helps automate the symlink creation process
 but is efficacy for existing projects is limited since it cannot decide
 what to do if symlink names already exist. To use it do:
 
-    cd `submodule`
+    cd `shared`
     ./install
 
 # Usage
@@ -618,7 +616,14 @@ you must use other files to achieve the same effects.
 
 This section discusses design choices made for this repo.
 
-The advantage of this submodule is obvious: centralizing all shared file development in one place.
+## Why a submodule
+
+This should be used as a submodule to latex projects.
+The advantage of doing so is that whenever updates are done to the shared files,
+you can easily add them to other repository by:
+
+    cd submodule
+    git pull
 
 The problem with this submodule is a problem
 because you have to copy it up once for every latex repo, and this takes up space.
