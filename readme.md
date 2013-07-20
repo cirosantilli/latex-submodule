@@ -80,12 +80,10 @@ See the instructions on the readme for how to use that template.
 
 Include this as a submodule in your existing git repo as:
 
-    git submodule add git://github.com/cirosantilli/latex.git shared
-    git add .gitmodules
+    git submodule add https://github.com/cirosantilli/latex-submodule shared
 
-At the repo root then symlink from the required place in
-the repo into this submodule. For example, to use the makefile do you want
-a struture such as:
+At the repo root then symlink files from the required place in the repo into this submodule.
+For example, to use the makefile do you probably want a struture such as:
 
     git-root/shared/makefile
     git-root/makefile               ( -> shared/makefile)
@@ -100,6 +98,8 @@ what to do if symlink names already exist. To use it do:
 
     cd `shared`
     ./install
+
+Finally, `git add` all the files you want to keep in the repo.
 
 # Usage
 
