@@ -512,6 +512,11 @@ Prefix to the REMOTE_SUBDIR.
 
 Default value: `EMPTY`.
 
+Please not that certain ftp providers require you to upload to a given subdir,
+for example `public_html`, so in that case you would need to set this to that value:
+
+    REMOTE_SUBDIR := public_html/
+
 ### PROJECT_NAME
 
 Name of current project.
