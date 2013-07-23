@@ -252,7 +252,7 @@ Uploads the latest compiled distribution created by `make dist` via ftp.
 Implies `dist`.
 
 Before using this, you must of course have the ftp account.
-Many websites offer such accounts today. An example is <http://freehostingnoads.net/>,
+Many websites offer such accounts today. An example is <http://www.000webhost.com>
 but there may be others out there which offer more space or bandwidth.
 
 A common usage of this is to upload to web servers with an http server frontend
