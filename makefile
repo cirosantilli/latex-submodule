@@ -11,18 +11,19 @@ PARAMS_FILE_PRIVATE	:= makefile-params-private
 IN_EXTS   	:= .tex .md
 IN_DIR   	?= src/
 	#dir where output files such as .pdf will be put. slash terminated:
-OUT_DIR  	?= _build/
+BUILD_DIR  	?= _build/
 	#dir where auxiliary files such as `.out` will be put. slash terminated.
-	#TODO 1 get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
+	#TODO 1 get this to work for a different dir than BUILD_DIR. The problem is that synctex won't allow this!
 	#AUX_DIR  	?= _aux/
-AUX_DIR  	?= $(OUT_DIR)
+AUX_DIR  	?= $(BUILD_DIR)
 DIST_DIR  	?= _dist/
 	#extension of output:
 OUT_EXT 	:= .pdf
 
 VIEW		?= index
 LINE		?= 1
-VIEWER 		?= okular --unique
+PAGE		?=
+VIEWER 		?= okular --unique -p $$PAGE "$(VIEW_PATH)"
 
 TAG 				?= $(shell git tag --contains HEAD | sort | head -n1 )
 TAG_DEFAULT			?= latest
@@ -39,7 +40,12 @@ REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
 CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -output-directory "$(AUX_DIR)"
-CC_LATEX_INTERACTION ?= -interaction=nonstopmode
+INTERACT 	?= 0
+ifeq ($(INTERACT),1)
+	CC_LATEX_INTERACTION :=
+else
+	CC_LATEX_INTERACTION := -interaction=nonstopmode
+endif
 CC_MD	 	?= pandoc -s --toc --mathml -N
 
 MEDIA_GEN_DIR ?= ./media-gen/
@@ -49,12 +55,12 @@ ERASE_MSG 	:= 'Dont put anything important in those directories since `make clea
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
 OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(basename $(INS_NODIR)))
-OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
+OUTS		:= $(addprefix $(BUILD_DIR), $(OUTS_NODIR))
 
 STYS		:= $(wildcard *.sty)
 BIBS		:= $(wildcard *.bib)
 
-VIEW_OUT_PATH:= $(shell echo `pwd`/$(OUT_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(pwd)/$(IN_DIR)(.*)\.[^.]*|\1$(OUT_EXT)|"))
+VIEW_PATH := $(shell echo `pwd`/$(BUILD_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(pwd)/$(IN_DIR)(.*)\.[^.]*|\1$(OUT_EXT)|"))
 
 #remove automatic rules:
 .SUFFIXES:
@@ -62,13 +68,13 @@ VIEW_OUT_PATH:= $(shell echo `pwd`/$(OUT_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(p
 .PHONY: all clean help install-deps-ubuntu media-gen mkdir upload_output view
 
 all: media-gen mkdir $(OUTS) rm-empty
-	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" OUT_DIR="$(OUT_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
+	if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" BUILD_DIR="$(BUILD_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
 	@echo 'Auxiliary files put into: $(AUX_DIR)'
-	@echo 'Output    files put into: $(OUT_DIR)'
+	@echo 'Output    files put into: $(BUILD_DIR)'
 	@echo $(ERASE_MSG)
 
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
-$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
+$(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 	#make pdf with bibtex and synctex:
 	$(CC_LATEX) $(CC_LATEX_INTERACTION) "$<"
 	#allowing for error here in case tex has no bib files:
@@ -76,13 +82,13 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 	$(CC_LATEX) -interaction=nonstopmode "$<"
 	$(CC_LATEX) -interaction=nonstopmode -synctex=1 "$<"
 	#move output to out dir if they are different:
-	if [ ! $(AUX_DIR) = $(OUT_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(OUT_DIR)"; fi
+	if [ ! $(AUX_DIR) = $(BUILD_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(BUILD_DIR)"; fi
 
-$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.md
+$(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.md
 	$(CC_MD) -o "$@" "$<"
 
 clean: distclean
-	rm -rf $(OUT_DIR) $(AUX_DIR)
+	rm -rf $(BUILD_DIR) $(AUX_DIR)
 	find $(IN_DIR) -type f \( \
 		-iname '*.aux' -o -iname '*.glo' -o -iname '*.idx' -o -iname '*.log' -o -iname '*.toc' -o \
 		-iname '*.ist' -o -iname '*.acn' -o -iname '*.acr' -o -iname '*.alg' -o -iname '*.bbl' -o \
@@ -95,7 +101,7 @@ clean: distclean
 	   make -C $(MEDIA_GEN_DIR) clean	;\
 	fi
 	echo "Removed output files by extension in: $(IN_DIR)"
-	echo "Removed dirs: $(OUT_DIR) $(AUX_DIR)"
+	echo "Removed dirs: $(BUILD_DIR) $(AUX_DIR)"
 
 #generate distribution, for ex: dir with pdfs or zip with pdfs
 dist: all
@@ -104,7 +110,7 @@ ifeq ($(strip $(TAG)),)
 	@exit 1
 endif
 	mkdir -p "$(DIST_DIR)/$(TAG)/pdf/"
-	cp -lr "$(OUT_DIR)"* "$(DIST_DIR)/$(TAG)/pdf/"
+	cp -lr "$(BUILD_DIR)"* "$(DIST_DIR)/$(TAG)/pdf/"
 	cd "$(DIST_DIR)/$(TAG)" &&\
 	find "pdf" -type f ! -iname "*$(OUT_EXT)" -delete &&\
 	mv pdf "$(IN_ZIP_NAME)-pdf" &&\
@@ -140,37 +146,34 @@ distupall: dist distup
 help:
 	@echo 'See the readme.md file in the submodule for the documentation.'
 
-#generate media generated programtically
-media-gen:
-	if [ -d "$(MEDIA_GEN)" ]; then make -C "$(MEDIA_GEN_DIR)"; fi
-
-mkdir:
-	mkdir -p "$(AUX_DIR)"
-	mkdir -p "$(OUT_DIR)"
-	@echo "Made dirs: $(OUT_DIR) $(AUX_DIR)"
-	@echo $(ERASE_MSG)
-
-rm-empty:
-	find $(OUT_DIR) -depth -type d -exec rmdir {} \; 2>/dev/null
-
-#if the PAGE could not be calculated, open document at page 1
-#rationale: pandoc does not generate synctex, and even if it did,
-#it would still need to determine position on the generated tex
-view: all
-	( \
-		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW)" -o "$(VIEW_OUT_PATH)"`" ;\
-		PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
-		if [ -z "$$PAGE" ]; then \
-			PAGE_COMMAND="" ;\
-		else \
-			PAGE_COMMAND="-p $$PAGE" ;\
-		fi ;\
-		nohup $(VIEWER) $$PAGE_COMMAND $(VIEW_OUT_PATH) >/dev/null & \
-	)
-
 install-deps-ubuntu:
 	sudo apt-get install -y aptitude
 	sudo aptitude install -y texlive-full
 	sudo aptitude install -y pandoc
 	sudo aptitude install -y okular
 	sudo aptitude install -y lftp
+
+#generate media generated programtically
+media-gen:
+	if [ -d "$(MEDIA_GEN)" ]; then make -C "$(MEDIA_GEN_DIR)"; fi
+
+mkdir:
+	mkdir -p "$(AUX_DIR)"
+	mkdir -p "$(BUILD_DIR)"
+	@echo "Made dirs: $(BUILD_DIR) $(AUX_DIR)"
+	@echo $(ERASE_MSG)
+
+rm-empty:
+	find $(BUILD_DIR) -depth -type d -exec rmdir {} \; 2>/dev/null
+
+view: all
+	( \
+		if [ -z "$(PAGE)" ]; then \
+			SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW)" -o "$(VIEW_PATH)"`" ;\
+			PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
+			if [ -z "$$PAGE" ]; then \
+				PAGE="1" ;\
+			fi ;\
+		fi ;\
+		nohup $(VIEWER) >/dev/null & \
+	)
