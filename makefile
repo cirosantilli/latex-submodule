@@ -11,7 +11,7 @@ PARAMS_FILE_PRIVATE	:= makefile-params-private
 IN_EXTS   	:= .tex .md
 IN_DIR   	?= src/
 	#dir where output files such as .pdf will be put. slash terminated:
-OUT_DIR  	?= _out/
+OUT_DIR  	?= _build/
 	#dir where auxiliary files such as `.out` will be put. slash terminated.
 	#TODO 1 get this to work for a different dir than OUT_DIR. The problem is that synctex won't allow this!
 	#AUX_DIR  	?= _aux/
@@ -22,7 +22,7 @@ OUT_EXT 	:= .pdf
 
 VIEW		?= index
 LINE		?= 1
-VIEWER 		?= okular --unique -p $$PAGE
+VIEWER 		?= okular --unique
 
 TAG 				?= $(shell git tag --contains HEAD | sort | head -n1 )
 TAG_DEFAULT			?= latest
@@ -153,11 +153,19 @@ mkdir:
 rm-empty:
 	find $(OUT_DIR) -depth -type d -exec rmdir {} \; 2>/dev/null
 
+#if the PAGE could not be calculated, open document at page 1
+#rationale: pandoc does not generate synctex, and even if it did,
+#it would still need to determine position on the generated tex
 view: all
 	( \
 		SYNCTEX_OUT="`synctex view -i "$(LINE):1:$(VIEW)" -o "$(VIEW_OUT_PATH)"`" ;\
 		PAGE="`echo "$$SYNCTEX_OUT" | awk -F: '$$1 ~/Page/ { print $$2; exit }'`" ;\
-		nohup $(VIEWER) $(VIEW_OUT_PATH) >/dev/null & \
+		if [ -z "$$PAGE" ]; then \
+			PAGE_COMMAND="" ;\
+		else \
+			PAGE_COMMAND="-p $$PAGE" ;\
+		fi ;\
+		nohup $(VIEWER) $$PAGE_COMMAND $(VIEW_OUT_PATH) >/dev/null & \
 	)
 
 install-deps-ubuntu:
