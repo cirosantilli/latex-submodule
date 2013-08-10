@@ -8,10 +8,11 @@
 \ProvidesPackage{shared}
 
 \usepackage{amssymb}
-\usepackage{amsmath}
+\usepackage{amsmath}          % xrightarrow
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{makeidx}          % makes index
+\usepackage{mathtools}        % arrow text above and below
 \usepackage{graphicx}         % graphicspath
 \usepackage{natbib}	          % citep
 \usepackage{verbatim}         % comment enviroment
@@ -156,6 +157,22 @@
 %- named functions -%
 \newcommand{\indQx}{\mathbf{1}_{\Q}(x)}	    %- rational indicator function of x -%
 \newcommand{\indQ}[1]{\mathbf{1}_{\Q}(#1)}  %- rational indicator function -%
+
+%#arrow text above and below
+\makeatletter
+\newlength\min@xx
+\newcommand*\xxrightarrow[1]{\begingroup
+  \settowidth\min@xx{$\m@th\scriptstyle#1$}
+  \@xxrightarrow}
+\newcommand*\@xxrightarrow[2][]{
+  \sbox8{$\m@th\scriptstyle#1$}  % subscript
+  \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
+  \sbox8{$\m@th\scriptstyle#2$} % superscript
+  \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
+  \xrightarrow[{\mathmakebox[\min@xx]{\scriptstyle#1}}]
+    {\mathmakebox[\min@xx]{\scriptstyle#2}}
+  \endgroup}
+\makeatother
 
 % to be used in the future
 % \newcommand{\hypotenuse}{\ensuremath{a^{2}+y^{2}}} works either in or out of equation. ($$ inside equation == not good)
