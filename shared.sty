@@ -33,12 +33,8 @@
 %\usepackage{booktabs} % not Miktex standard
 %\usepackage{tocloft} % not Miktex standard
 
-%#important changes
-
-\usepackage{sectsty}
-\sectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}       %this will add a hrul after each section 5pt below baseline
-\subsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}
-\subsubsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}
+\usepackage[compact]{titlesec}              %known clashes: sectsty
+\titleformat{\section}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{1pt}{\Huge}[\vspace{1pt}\titlerule]
 
 %look under the following paths for figures:
 
