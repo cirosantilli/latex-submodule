@@ -4,7 +4,7 @@ Compiled versions of this file can be found [here](http://cirosantilli.t15.org/l
 
 You can also compile this yourself by using `make` in this directory.
 
-# Features
+#features
 
 - automate the make process, including bibtex and synctex
 - view output with viewers
@@ -15,17 +15,17 @@ You can also compile this yourself by using `make` in this directory.
 - markdown to pdf
 - many customizable parameters
 
-# Live example
+#live example
 
 A live example that illustrates the usage of this submodule.
 can be found at: <https://github.com/cirosantilli/latex-cheat>
 
-# Dependencies
+#dependencies
 
 This section describes the utilities on which this project depends,
 and which you must install before using this project.
 
-## POSIX
+##POSIX
 
 This is designed to rely only on basic
 [POSIX 7 command line utilities](http://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html)
@@ -38,7 +38,7 @@ Windows is not POSIX compliant out-of-the-box,
 but you can easily install most POSIX utilities in one go with packages such as mingw or cygwin.
 Remember that the utilities must be in your PATH.
 
-## non-POSIX
+##non-POSIX
 
 The non POSIX dependencies are:
 
@@ -60,22 +60,15 @@ which installs in one go all the non-POSIX requirements.
 If you manage to configure this project for use in any other system not mentioned here,
 please submit a pull request and we will be glad to merge it.
 
-## Prior knowledge
+##prior knowledge
 
 Although it is possible (and a design goal) to use this project without much prior knowledge,
 understanding the very basics of the dependency utilities will be of great help
 if you want to understand what is going on, and easily guess how to do new things.
 
-# Installation
+#installation
 
-This should be used as a submodule to latex projects.
-The advantage of doing so is that whenever updates are done to the shared files,
-you can easily add them to other repository by:
-
-    cd submodule
-    git pull
-
-## New project
+##new project
 
 For a new project, consider using the latex template located at:
 <https://github.com/cirosantilli/latex-template> directly,
@@ -83,27 +76,32 @@ which already has this submodule installed.
 
 See the instructions on the readme for how to use that template.
 
-## Existing project
+##existing project
 
 Include this as a submodule in your existing git repo as:
 
-    git submodule add git://github.com/USERNAME/latex.git shared
-    git add .gitmodules
+    git submodule add https://github.com/cirosantilli/latex-submodule shared
 
-At the repo root then symlink from the required place in
-the repo into this submodule. For example, to use the makefile do:
+At the repo root then symlink files from the required place in the repo into this submodule.
+For example, to use the makefile do you probably want a struture such as:
 
-    git-root/submodule/makefile
-    git-root/makefile               ( -> submodule/makefile)
+    git-root/shared/makefile
+    git-root/makefile               ( -> shared/makefile)
+
+which you can achieve via:
+
+    ln -s shared/makefile makefile
 
 The `install` script helps automate the symlink creation process
 but is efficacy for existing projects is limited since it cannot decide
 what to do if symlink names already exist. To use it do:
 
-    cd `submodule`
+    cd `shared`
     ./install
 
-# Usage
+Finally, `git add` all the files you want to keep in the repo.
+
+#usage
 
 Once installed, the usage is based on `make`.
 
@@ -118,7 +116,7 @@ See:
 - [Make configuration](#make-configuration) for a description of how to use the configuration
     files and what each option does.
 
-## Recursive
+##recursive
 
 You can use this in two ways: recursive or non recursive.
 
@@ -135,8 +133,8 @@ Recursive operation means that [IN_DIR](#in_dir) will be searched recursivelly f
 
 will generate output like:
 
-    ~/.repo-root/_out/index.tex
-    ~/.repo-root/_out/subdir/index.tex
+    ~/.repo-root/BUILD_DIR/index.tex
+    ~/.repo-root/BUILD_DIR/subdir/index.tex
 
 This is recursive because you want to compile `index.tex` under `subdir`.
 
@@ -179,7 +177,7 @@ while what all editors do by default is to take dependencies on the same dir as
 
 In non recursive operation, you just put all the dependencies in [IN_DIR](#in_dir) together with the tex files.
 
-# Make targets
+#make targets
 
 For those unfamiliar with make: you can use targets simply as:
 
@@ -189,21 +187,21 @@ Targets are sorted by increasing usefulness, simplicity or grouped by similarity
 
 The make commands assume that you current dir is the same as the makefile.
 
-## install-deps-ubuntu
+##install-deps-ubuntu
 
 Installs all the required dependencies supposing user is on a ubuntu machine
 
-## all
+##all
 
 This is the default target, that is, the will that will be run when you use just `make` without arguments.
 
 Makes all .tex and .md (markdown) files under [IN_DIR](#in_dir) (recursivelly) into pdfs.
 
-Puts outputs under a directory named [OUT_DIR](#out_dir)
+Puts outputs under a directory named [BUILD_DIR](#build_dir)
 
 Empty directories are removed from the output.
 
-## view
+##view
 
 View output using a file viewer.
 
@@ -221,11 +219,11 @@ Example:
 
 would run something like:
 
-    okular -p 2 _out/subdir/index.pdf
+    okular -p 2 BUILD_DIR/subdir/index.pdf
 
 supposing that line 10 is subdir/index correponds to page `2` of the pdf.
 
-## dist
+##dist
 
 Creates a distribution, that is, files that can be used to end users such as pdfs.
 
@@ -247,14 +245,14 @@ The `pdf/` subdir contains the pdf files of the original tree.
 
 The `pdf.zip` zip file contains the `pdf/` subdir.
 
-## distup
+##distup
 
 Uploads the latest compiled distribution created by `make dist` via ftp.
 
 Implies `dist`.
 
 Before using this, you must of course have the ftp account.
-Many websites offer such accounts today. An example is <http://freehostingnoads.net/>,
+Many websites offer such accounts today. An example is <http://www.000webhost.com>
 but there may be others out there which offer more space or bandwidth.
 
 A common usage of this is to upload to web servers with an http server frontend
@@ -268,8 +266,8 @@ taking up space and making users confused.
 You will need to set the following parameters in one of the [Makefile configuration](#make-configuration)
 parameters:
 
-- FTP_HOST: the ftp host. Example: `cirosantilli.t15.org`
-- FTP_USER: the ftp username. Example: `u147220728`
+- [FTP_HOST](#FTP_HOST): the ftp host. Example: `cirosantilli.t15.org`
+- [FTP_USER](#FTP_USER): the ftp username. Example: `u147220728`
 
 Those parameters together with the password are necessary for establishing the connection.
 They can be found in the control panel of your account.
@@ -282,11 +280,11 @@ The location is given by the [REMOTE_SUBDIR](#remote_subdir) configuration param
 All remote files in the `REMOTE_SUBDIR` directory will be first removed before attempting the upload,
 so make sure that you don't set it to a useful directory.
 
-## clean
+##clean
 
 Removes the following directories:
 
-- `OUT_DIR`
+- `BUILD_DIR`
 - `AUX_DIR`
 - `DIST_DIR`
 
@@ -298,9 +296,9 @@ the pdfs on the same directory as the tex sources will also get a clean repo.
 
 It is however recommended that users configure their editors to use the makefile via command bindings.
 
-# Make configuration
+#make configuration
 
-## Methods
+##methods
 
 You can configure the make parameters in the following ways:
 
@@ -308,7 +306,7 @@ You can configure the make parameters in the following ways:
 - makefile-params file
 - makefile-params-private file
 
-### Command line arguments
+###command line arguments
 
 Those follow the normal make syntax:
 
@@ -317,21 +315,35 @@ Those follow the normal make syntax:
 It has precedence over all other methods of specifying parameters,
 but has the disadvantage that you have to type them every time.
 
-### makefile-params
+###makefile-params
 
 The `makefile-params` and `makefile-params-private` shall be put on the same directory as the makefile.
 
 Those files use regular makefile syntax, but it may *not* contain any rules,
 only variable definitions and possibly intermediate computation steps to reach the values.
 
-For those unfamiliar with makefile syntax, this means that you should define parameters as:
+It is recommended that you define parameters as:
 
     PARAM := val
 
 where `PARAM` is the name of the parameter, and `val` is its value.
+
 There should be no trailing whitespace (`"val "` instead of `"val"`), as those are included in the vales.
 
-Any of those files may not exist, in which case it is as if it was an empty file.
+####runtime parameters
+
+Sometimes, the value of part of a parameter can only be decided at runtime.
+
+For example, the pdf page to view a pdf on depends on your current file and line number in your editor.
+
+In those cases, the following syntax must be used:
+
+    COMMAND = okular -p $(PAGE)
+
+*without* the colon `:=`. The reason for that is that this will allow page to be calculated later,
+and only expand after the final value of PAGE has been calculated.
+
+####local vs non local
 
 The difference between `makefile-params` and `makefile-params-private` is that the private version
 shall not be tracked by git, and therefore can contain settings that
@@ -362,6 +374,8 @@ Because is was defined with `:=` in the local file which is read afterwards and
 
 Because is was defined with `?=` in the local file
 
+####default values
+
 Each parameter has a default value which shall be taken in case it does not appear in the
 parameter files.
 
@@ -370,6 +384,8 @@ in which case it shall be noted as EMPTY on this documentation.
 
 It is recommended that you use the default values whenever you can unless you have a good reason not to do so,
 since it will be easier for people to understand your project then.
+
+####unset
 
 If you use a variable with a supported name as an intermediate buffer,
 don't forget to unset that variable before the end, or it shall be taken as a parameter value
@@ -384,11 +400,11 @@ Those parameters can be equally given on the command line to make using the usua
 
     make PARAM_NAME=PARAM_VAL
 
-## Parameters
+##parameters
 
 The following configuration parameters are supported:
 
-### IN_DIR
+###IN_DIR
 
 Directory which shall contain all of the `.tex` source files
 
@@ -407,7 +423,7 @@ to the don't clear directory list.
 
 Default value: `src/`
 
-### OUT_DIR
+###BUILD_DIR
 
 Directory where output files such as `.pdf` will be put after running [all](#all)
 
@@ -418,9 +434,12 @@ Not necessarily the same as where auxiliary files such as `.aux` will be put, wh
 **Do not put anything valuable inside this dirs**,
 since it is ignored by `.gitignore` and `make clean` will wipe it out!
 
-Default value: `_out/`.
+The contents of this direcotry may not be suitable for distributing to end users,
+but only using in development testint, and to generate the distribution.
 
-### AUX_DIR
+Default value: `_build/`.
+
+###AUX_DIR
 
 Directory where auxiliary files such as `.aux` will be put after running [all](#all)
 
@@ -431,12 +450,12 @@ Must be a realtive path from the project root, without starting with `./`.
 **Do not put anything valuable inside this dirs**,
 since it is ignored by `.gitignore` and `make clean` will wipe it out!
 
-For the time being, this cannot be different from `OUT_DIR`,
+For the time being, this cannot be different from `BUILD_DIR`,
 although this is because of current technical limitations which we are trying to overcome.
 
-Default value: [OUT_DIR](#out_dir).
+Default value: [BUILD_DIR](#build_dir).
 
-### DIST_DIR
+###DIST_DIR
 
 Directory where distribution files will be put after running [dist](#dist).
 
@@ -449,28 +468,43 @@ since it is ignored by `.gitignore` and `make clean` will wipe it out!
 
 Default value: `_dist/`.
 
-### VIEWER
+###INTERACT
+
+If `1`, then the make process may be interactive if that option is available.
+
+Else, the process will be non-interactive.
+
+Interactive means that the make will expect the user to me running it from a tty,
+and seeing stdout to the screen, so that if there is an error the user may correct
+it from the terminal.
+
+For example, in latex `pdflatex` this turns on `-interaction=nonstopmode`.
+
+Default vaue: `0`
+
+###VIEWER
 
 The viewer command, including the page in which the pdf should be open as a sh variable named `PAGE`.
 
 Default value:
 
-    okular -p $$PAGE
+    okular -p $$PAGE $(VIEW_PATH)
 
 where:
 
-- `-p` is the okular flag to select the initial page.
+- `$$PAGE` will expand to:
 
-- `$$PAGE` is a sh variable containing that page.
+    - if the paramete PAGE is set, then expand it equals PAGE.
+    - else if synctex is sucessful in retrieving the page number, expand to that value
+    - else `1`
 
-The page is be determined at each invocation by using synctex with [LINE](#line)
+- $(VIEW_OUT_PATH) will expand to the path of the output file to be viewed, based on the input $VIEW$.
 
-It has double dollar mark because it is a shell variable,
-so it is necessary to escape the makefile dollar.
+###VIEW parameter
 
-### VIEW parameter
+Path of file being edited.
 
-Full path of file being edited.
+If relative, this path must be relative to the makefile's directory.
 
 Default value: `project_path/$(IN_DIR)/index.tex`
 
@@ -478,7 +512,13 @@ This is tipically set by your editor as a command line argument to make as:
 
     make VIEW=/path/to/project/src/file.tex
 
-### LINE
+###PAGE
+
+See [VIEWER](#viewer).
+
+Default value: ``
+
+###LINE
 
 Current line in current file of the editor.
 
@@ -490,38 +530,43 @@ This is tipically set by your editor as a command line argument to make as:
 
 Default value: `1`.
 
-### FTP_HOST
+###FTP_HOST
 
 Host to upload output files to
 
 Default: `EMPTY`
 
-### FTP_USER
+###FTP_USER
 
 Username to connect to the ftp host.
 
 Default value: `EMPTY`.
 
-### REMOTE_SUBDIR
+###REMOTE_SUBDIR
 
 Remote directory where distribution files shall be uploaded to.
 
 Default value: `$(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)`.
 
-### REMOTE_SUBDIR_PREF
+###REMOTE_SUBDIR_PREF
 
 Prefix to the REMOTE_SUBDIR.
 
 Default value: `EMPTY`.
 
-### PROJECT_NAME
+Please not that certain ftp providers require you to upload to a given subdir,
+for example `public_html`, so in that case you would need to set this to that value:
+
+    REMOTE_SUBDIR := public_html/
+
+###PROJECT_NAME
 
 Name of current project.
 
 Default value: the basename of the directory name of the makefile.
 Ex: if the makefile is at: `~/project/makefile`, the default value is `project`
 
-### TAG
+###TAG
 
 Identifier for current project version.
 
@@ -538,13 +583,13 @@ In this way, you can upload a latest version of your project whenever you are no
 It is recommended that you don't name a git tag as [TAG_DEFAULT](#tag_default),
 since this would conflict with this default methodology.
 
-### TAG_DEFAULT
+###TAG_DEFAULT
 
 The default value for TAG in case the HEAD has no tags.
 
 Default value: `latest`
 
-# Editor configuration
+#editor configuration
 
 To make the most of this template,
 you can configure your editor of choice to use it.
@@ -583,7 +628,7 @@ as the makefile, that is, the repo root. You can achieve this in the following w
 If you manage to configure this project for use with any other editor not mentioned here,
 please submit a pull request and we will be glad to merge it.
 
-## Vim
+##vim
 
 You could add the following lines to your `.vimrc`:
 
@@ -604,7 +649,7 @@ If you want this behaviour only for this project, you should put those commands 
 To do inverse searches (pdf to tex) using git,
 you must configure your viewer to issue the following command: TODO
 
-# When should you modify a file in this directory
+#when should you modify a file in this directory
 
 Only make changes to the files in this directory
 ( or to their symlink names, which is the same thing )
@@ -614,11 +659,18 @@ and then merge them back in.
 For changes which are only interesting for a given project
 you must use other files to achieve the same effects.
 
-# Rationale
+#rationale
 
 This section discusses design choices made for this repo.
 
-The advantage of this submodule is obvious: centralizing all shared file development in one place.
+##why a submodule
+
+This should be used as a submodule to latex projects.
+The advantage of doing so is that whenever updates are done to the shared files,
+you can easily add them to other repository by:
+
+    cd submodule
+    git pull
 
 The problem with this submodule is a problem
 because you have to copy it up once for every latex repo, and this takes up space.
@@ -626,9 +678,9 @@ because you have to copy it up once for every latex repo, and this takes up spac
 However, we have considered that this is currently the best alternative since this repo is quite small
 and because the other alternatives are either unstable or put too much burden on the user.
 
-## Alternatives to use less space
+##alternatives to use less space
 
-### Clone into search paths
+###clone into search paths
 
 Files which have search paths for example `.sty`, could be put once on search path for every version.
 as explained in <https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path>
@@ -670,9 +722,9 @@ However this has the following shortcomings:
 I believe this adds a startup and maintenance barrier that is too large,
 and that it is better to simply use up a little more memory.
 
-## Why output dirs are not on the repo
+##why output dirs are not on the repo
 
-It would be nice to keep the `_out/` in the main repo to make that even clear for users
+It would be nice to keep the `BUILD_DIR` in the main repo to make that even clear for users
 that this dir will contain stuff.
 
 However git cannot currently track empty dirs.
@@ -682,9 +734,9 @@ Of course, one could put a dummy file like `.gitkeep` or `readme.md` inside the 
 However any file put into those dirs could conflict with output files
 (what if the program output is called `.gitkeep` or `readme.md` ?).
 
-Since `_out/` is such a rare name and obviously not a place where users should put their important files,
+Since `BUILD_DIR/` is such a rare name and obviously not a place where users should put their important files,
 a design decision was made to keep it out of the repo.
 
 Furthermore data loss is an inevitable possible consequence of `make clean`,
-and even keeping the `_out` in the repo would not prevent people from losing their data
+and even keeping the `BUILD_DIR` in the repo would not prevent people from losing their data
 ( it might even increase the chances that someone puts something in there... )

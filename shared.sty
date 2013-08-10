@@ -20,7 +20,11 @@
 \usepackage{ulem}             % underline with \uline{}
 
 \usepackage{listings}         % lstlisting environment
-\lstset{ literate={~} {$\sim$}{1} } %print decent tildes on lstlistings: <http://tex.stackexchange.com/questions/17266/how-to-insert-a-nice-tilde-in-a-lstlisting>
+\lstset{
+    basicstyle=\ttfamily,     %monospace font
+    literate={~} {$\sim$}{1}, %print decent tildes on lstlistings: <http://tex.stackexchange.com/questions/17266/how-to-insert-a-nice-tilde-in-a-lstlisting>
+}
+\usepackage{upquote}          %use decent ascii quotation marks in code.
 
 \usepackage[linkbordercolor={1 0 0}]{hyperref} %red borders. for printing the pdf, the borders dissapear!
 
@@ -32,8 +36,8 @@
 
 \usepackage{sectsty}
 \sectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}       %this will add a hrul after each section 5pt below baseline
-\subsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}    %this will add a hrul after each section 5pt below baseline
-\subsubsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}} %this will add a hrul after each section 5pt below baseline
+\subsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}
+\subsubsectionfont{\sectionrule{0pt}{0pt}{-5pt}{0.8pt}}
 
 %look under the following paths for figures:
 
