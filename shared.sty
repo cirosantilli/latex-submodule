@@ -16,7 +16,7 @@
 \usepackage{graphicx}         % graphicspath
 \usepackage{natbib}	          % citep
 \usepackage{verbatim}         % comment enviroment
-\usepackage[utf8]{inputenc}   % á à â work, but not 中文
+\usepackage[utf8]{inputenc}   % á à â work, but not 中文, nor ~, <, >
 \usepackage{array}            % format individual table columns
 \usepackage{ulem}             % underline with \uline{}
 
@@ -34,7 +34,7 @@
 %\usepackage{tocloft} % not Miktex standard
 
 \usepackage[compact]{titlesec}              %known clashes: sectsty
-\titleformat{\section}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{1pt}{\Huge}[\vspace{1pt}\titlerule]
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
 
 %look under the following paths for figures:
 

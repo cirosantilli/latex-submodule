@@ -20,7 +20,7 @@ DIST_DIR  	?= _dist/
 	#extension of output:
 OUT_EXT 	:= .pdf
 
-VIEW		?= index
+VIEW		?= index.pdf
 LINE		?= 1
 PAGE		?=
 VIEWER 		?= okular --unique -p $$PAGE "$(VIEW_PATH)"
