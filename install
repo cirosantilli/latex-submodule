@@ -16,7 +16,7 @@ FILE_EXISTS_MESSAGE="FILE ALREADY EXISTS. INSTALLATION ABORTED:"
 CUR_DIR_BNAME="$( basename "$( pwd )" )"
 
 #shared files that will be symlinked into the repo root with the same basename
-FS_LN=( makefile .gitignore shared.sty shared-presentation.sty )
+FS_LN=( Makefile .gitignore shared.sty shared-presentation.sty )
 
 cd ..
 

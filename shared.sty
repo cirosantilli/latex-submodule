@@ -1,9 +1,6 @@
-%a do everything .sty
-
-%no conflicts as far as I can tell
-
-%only included here are commands that can be used on almost any file.
-%if you think a command is only useful for certain files, don't include it here, and put it into your specific project.
+% sty to be shared amongs multiple projects.
+% TeX Live 2013 full ISO no extra packages.
+% Only include here commands that can be used on almost any file.
 
 \ProvidesPackage{shared}
 
@@ -11,40 +8,43 @@
 \usepackage{amsmath}          % xrightarrow
 \usepackage{amsfonts}
 \usepackage{amsthm}
-\usepackage{makeidx}          % makes index
-\usepackage{mathtools}        % arrow text above and below
-\usepackage{graphicx}         % graphicspath
-\usepackage{natbib}	          % citep
-\usepackage{verbatim}         % comment enviroment
+\usepackage{array}            % Format individual table columns
+\usepackage{floatrow}         % Center all floats like images or tables.
+\usepackage{graphicx}         % Provides: graphicspath
+  % Also look under given paths for figures.
+  % If you use twice, the second time destroys the first.
+  % Those paths are given relative to the currently processed file,
+  % not current directory from which latex was called.
+  \graphicspath{{./media/}{./media-gen/out/}}
 \usepackage[utf8]{inputenc}   % á à â work, but not 中文, nor ~, <, >
-\usepackage{array}            % format individual table columns
+% lstlisting
+  \usepackage{lstautogobble}  % http://tex.stackexchange.com/questions/164993/indent-content-of-verbatim-lstlisting-environment-relative-to-containing-envir
+  \usepackage{listings}
+  \lstset{
+    autogobble,               % http://tex.stackexchange.com/questions/164993/indent-content-of-verbatim-lstlisting-environment-relative-to-containing-envir
+    basicstyle=\ttfamily,     % monospace font
+    literate={~} {$\sim$}{1}, % print decent tildes on lstlistings: <http://tex.stackexchange.com/questions/17266/how-to-insert-a-nice-tilde-in-a-lstlisting>
+  }
+  \usepackage{upquote}
+% hyperref
+  % Automatically imports the url package which provides \url.
+  % hyphens: allows the line to break at hyphens, which almost always solves large URL problems:
+  % http://tex.stackexchange.com/questions/3033/forcing-linebreaks-in-url
+  % linkbordercolor: Red borders. For printing the generated PDF into paper, the borders dissapear as desired.
+  \PassOptionsToPackage{hyphens}{url}\usepackage[
+    linkbordercolor={1 0 0}   %  TODO the color is not changing for \url commands
+  ]{hyperref}
+\usepackage{makeidx}          % Makes index.
+\usepackage{mathtools}        % Arrow text above and below.
+\usepackage{natbib}	          % Provides: citep
+\usepackage[compact]{titlesec}
+  \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
 \usepackage{ulem}             % underline with \uline{}
+\usepackage{verbatim}         % Comment enviroment.
 
-\usepackage{listings}         % lstlisting environment
-\lstset{
-    basicstyle=\ttfamily,     %monospace font
-    literate={~} {$\sim$}{1}, %print decent tildes on lstlistings: <http://tex.stackexchange.com/questions/17266/how-to-insert-a-nice-tilde-in-a-lstlisting>
-}
-\usepackage{upquote}          %use decent ascii quotation marks in code.
-
-\usepackage[linkbordercolor={1 0 0}]{hyperref} %red borders. for printing the generated pdf into paper, the borders dissapear!
-
-%\usepackage{tikz} % not Miktex standard
-%\usepackage{booktabs} % not Miktex standard
-%\usepackage{tocloft} % not Miktex standard
-
-\usepackage[compact]{titlesec}              %known clashes: sectsty
-\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
-
-%look under the following paths for figures:
-
-%if you use this twice, the second time destroys the first:
-\graphicspath{ {./media/}{./media-gen/out/} }
-
-%those paths are given relative to the current files, not current directories
-
-%----------- document parts -----------------%
-\newcommand{\subsubsubsection}[1]{#1}
+%\usepackage{tikz}      % not Miktex standard
+%\usepackage{booktabs}  % not Miktex standard
+%\usepackage{tocloft}   % not Miktex standard
 
 %----------- theorems -----------------%
 
@@ -74,7 +74,7 @@
 \newtheorem{proposition}[example]{Proposition}
 \newtheorem{lemma}[example]{Lemma}
 
-\newcommand{\eq}[1]{ \begin{align} #1 \end{align} }
+\newcommand{\eq}[1]{\begin{align} #1 \end{align}}
 \newcommand{\tableW}[3]{\begin{table}[h] \begin{center} \begin{tabular}#2 \end{tabular} #1 \end{center} \end{table} }
 
 %----------- bibtex bibliography -----------------%
@@ -124,7 +124,7 @@
 \newcommand{\argmin}[1]{\underset{#1}{\operatorname{argmin}}}
 
 %- matrices -%
-\newcommand{\Mn}{M(n)}	    
+\newcommand{\Mn}{M(n)}
 \newcommand{\GLn}{GL(n)}    %- general linear group nxn -%
 \newcommand{\Symn}{Sym(n)}  %- Symmetric matrices nxn -%
 \newcommand{\SPDn}{Sym_{\star}^{+}(n)} %- Symmetric Positive Definite nxn -%

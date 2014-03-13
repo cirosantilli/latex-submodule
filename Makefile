@@ -1,23 +1,23 @@
 #TODO 1 implement distall target
 
-	#this file shall be sourced here. It should only contain project specific versions of the param
-PARAMS_FILE 		:= makefile-params
-PARAMS_FILE_PRIVATE	:= makefile-params-private
+	# This file shall be sourced here. It should only contain project specific versions of the param
+PARAMS_FILE 		:= Makefile_params
+PARAMS_FILE_LOCAL	:= Makefile_params_local
 
 -include $(PARAMS_FILE)
--include $(PARAMS_FILE_PRIVATE)
+-include $(PARAMS_FILE_LOCAL)
 
-	#extension of input files:
+	# Extension of input files:
 IN_EXTS   	:= .tex .md
 IN_DIR   	?= src/
-	#dir where output files such as .pdf will be put. slash terminated:
+	# Dir where output files such as .pdf will be put. slash terminated:
 BUILD_DIR  	?= _build/
-	#dir where auxiliary files such as `.out` will be put. slash terminated.
-	#TODO 1 get this to work for a different dir than BUILD_DIR. The problem is that synctex won't allow this!
+	# Dir where auxiliary files such as `.out` will be put. slash terminated.
+	# TODO 1 get this to work for a different dir than BUILD_DIR. The problem is that synctex won't allow this!
 	#AUX_DIR  	?= _aux/
 AUX_DIR  	?= $(BUILD_DIR)
 DIST_DIR  	?= _dist/
-	#extension of output:
+	# Extension of output:
 OUT_EXT 	:= .pdf
 
 VIEW		?= index.pdf
@@ -36,7 +36,7 @@ FTP_USER 			?=
 REMOTE_SUBDIR_PREF 	?=
 REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 
-	#name or root directory inside of the zip:
+	# Name or root directory inside of the zip:
 IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
 CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -output-directory "$(AUX_DIR)"
@@ -62,7 +62,7 @@ BIBS		:= $(wildcard *.bib)
 
 VIEW_PATH := $(shell echo `pwd`/$(BUILD_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(pwd)/$(IN_DIR)(.*)\.[^.]*|\1$(OUT_EXT)|"))
 
-#remove automatic rules:
+# Remove automatic rules:
 .SUFFIXES:
 
 .PHONY: all clean help install-deps-ubuntu media-gen mkdir upload_output view
@@ -75,13 +75,13 @@ all: media-gen mkdir $(OUTS) rm-empty
 
 #$(STYS) $(BIBS) are here so that if any include files are modified, make again:
 $(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
-	#make pdf with bibtex and synctex:
+	# Make pdf with bibtex and synctex:
 	$(CC_LATEX) $(CC_LATEX_INTERACTION) "$<"
-	#allowing for error here in case tex has no bib files:
+	# Allowing for error here in case tex has no bib files:
 	-bibtex "$(AUX_DIR)$*"
 	$(CC_LATEX) -interaction=nonstopmode "$<"
 	$(CC_LATEX) -interaction=nonstopmode -synctex=1 "$<"
-	#move output to out dir if they are different:
+	# Move output to out dir if they are different:
 	if [ ! $(AUX_DIR) = $(BUILD_DIR) ]; then mv -f $(AUX_DIR)$*$(OUT_EXT) "$(BUILD_DIR)"; fi
 
 $(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.md
@@ -103,7 +103,7 @@ clean: distclean
 	echo "Removed output files by extension in: $(IN_DIR)"
 	echo "Removed dirs: $(BUILD_DIR) $(AUX_DIR)"
 
-#generate distribution, for ex: dir with pdfs or zip with pdfs
+# Generate distribution, for ex: dir with PDFs or zip with HTML.
 dist: all
 ifeq ($(strip $(TAG)),)
 	@echo 'ERROR: TAG is currently empty. First give a tag to the current repo with `git tag`'
@@ -119,16 +119,16 @@ endif
 	@echo 'Dist files were be put into: $(DIST_DIR)'
 	@echo $(ERASE_MSG)
 
-#clean only the dist
+# Clean only the dist.
 distclean:
 	rm -rf $(DIST_DIR)
 
-#- remove any directory with the same name as the uploaded tag directory
-#- upload
-#
-#only files with the OUT_EXT will be kept in the output
-#
-#will attempt to upload the current tag only
+# - remove any directory with the same name as the uploaded tag directory
+# - upload
+# 
+# Only files with the OUT_EXT will be kept in the output.
+# 
+# Will attempt to upload the current tag only.
 distup: dist
 	cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\"; mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 	#TODO 0 prevent rm -rf from failing if dir does not exist, this forces us to use `;` instead of &&
@@ -136,9 +136,9 @@ distup: dist
 	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\" && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 	#cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && mkdir -p \"$(REMOTE_SUBDIR)\" && mirror --delete-first -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
 
-#makes and uploads all tags
+# Makes and uploads all tags.
 #
-#useful when you want to move dist files to a new server
+# Useful when you want to move dist files to a new server.
 distall: dist
 
 distupall: dist distup
@@ -153,7 +153,7 @@ install-deps-ubuntu:
 	sudo aptitude install -y okular
 	sudo aptitude install -y lftp
 
-#generate media generated programtically
+# Generate media generated programtically.
 media-gen:
 	if [ -d "$(MEDIA_GEN)" ]; then make -C "$(MEDIA_GEN_DIR)"; fi
 

@@ -1,13 +1,13 @@
-# this constains extensions which shall be gitignored
+# This constains extensions which shall be gitignored
 #
-# this file should be symliked at the root of the source codes (.tex, .md)
+# This file should be symliked at the root of the source codes (.tex, .md)
 # so that if users use editor which compile in place, the generated files
 # will be ignored. For example:
 #
 #    git-root/src/.gitignore            ( -> ../submodule/THIS_FILENAME )
 #    git-root/submodule/THIS_FILENAME
 #
-# this cannot be symliked from the repo root, since it is possible for example
+# This cannot be symliked from the repo root, since it is possible for example
 # that users have media .pdf files for which they do not hold the source
 # and which they want to include into their projects
 
