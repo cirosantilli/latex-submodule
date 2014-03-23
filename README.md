@@ -17,7 +17,7 @@ You can also compile this yourself by using `make` in this directory.
 
 #Live example
 
-A live example that illustrates the usage of this submodule. can be found at: <https://github.com/cirosantilli/latex-cheat>
+A live example that illustrates the usage of this submodule can be found at: <https://github.com/cirosantilli/latex-cheat>
 
 #Dependencies
 
@@ -29,21 +29,29 @@ This is designed to rely only on basic [POSIX 7 command line utilities](http://p
 
 This means that it will be easier to use this project in a Linux distro or Mac OS X, since those are largely POSIX compliant out-of-the-box.
 
-Windows is not POSIX compliant out-of-the-box, but you can easily install most POSIX utilities in one go with packages such as mingw or cygwin. Remember that the utilities must be in your `PATH`.
+Windows is not POSIX compliant out-of-the-box, but you can easily install most POSIX utilities in one go with packages such as Cygwin and MinGW. Remember that the utilities must be in your `PATH`.
 
-##Non POSIX
+##Non-POSIX
 
 The non POSIX dependencies are:
 
 - `git`: this should be used as a git submodule of another git repo.
-- [TeX Live 2013 ISO install](https://www.tug.org/texlive/acquire-iso.html) (optional): used to transform `.tex` into `.pdf`. Probably works with other LaTeX distributions, but untested. We recommend a torrent download.
-- `bibtex` (optional): required if you want to use `.bib` bibliography files with LaTeX.
+- [TeX Live 2013 ISO install](https://www.tug.org/texlive/acquire-iso.html) (optional): used to transform `.tex` into `.pdf`. Probably works with other LaTeX distributions, but untested. We recommend a torrent download. Utilities required from TeX Live include:
+    - `latex`
+    - `bibtex`
+    - `synctex`
 - `pandoc` (optional): required if you want to compile `.md` markdown files.
 - `lftp` (optional): required if you want to upload your output files via FTP.
 
-For systems which have some sort of command line package manager, such as Ubuntu's `apt-get` or Fedora's `yum`, there may be a make target of the type: `install-deps-XXX` which installs in one go all the non-POSIX requirements. For example, to install dependencies on Ubuntu simply:
+You can check if those dependencies are installed with:
 
-    make install-deps-ubuntu
+    make check
+
+There may be an automated install target for your system of type:
+
+    make install-ubuntu
+
+See [install targets](#install-targets) for a full list.
 
 If you manage to configure this project for use in any other system not mentioned here, please submit a pull request and we will be glad to merge it.
 
@@ -152,7 +160,7 @@ The `make` commands assume that you current dir is the same as the Makefile.
 You should read about the targets in the following order:
 
 - `help`
-- `install-deps-ubuntu`
+- `install-ubuntu`
 - `all`
 - `distup`
 - `clean`
@@ -232,9 +240,11 @@ All remote files in the `REMOTE_SUBDIR` directory will be first removed before a
 
 Show summary of make targets.
 
-##install-deps-ubuntu
+##install targets
 
-Installs all the required dependencies supposing user is on a clean Ubuntu 12.04.
+Installs all the required dependencies on a given system. Existing targets are:
+
+- `make install-ubuntu` Ubuntu 12.04.
 
 ##view
 

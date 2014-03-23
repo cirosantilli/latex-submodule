@@ -7,23 +7,25 @@ PARAMS_FILE_LOCAL	:= Makefile_params_local
 -include $(PARAMS_FILE)
 -include $(PARAMS_FILE_LOCAL)
 
-	# Extension of input files:
+# Extension of input files:
 IN_EXTS   	:= .tex .md
 IN_DIR   	?= src/
-	# Dir where output files such as .pdf will be put. slash terminated:
+# Dir where output files such as .pdf will be put. slash terminated:
 BUILD_DIR  	?= _build/
-	# Dir where auxiliary files such as `.out` will be put. slash terminated.
-	# TODO 1 get this to work for a different dir than BUILD_DIR. The problem is that synctex won't allow this!
-	#AUX_DIR  	?= _aux/
+# Dir where auxiliary files such as `.out` will be put. slash terminated.
+# TODO 1 get this to work for a different dir than BUILD_DIR. The problem is that synctex won't allow this!
+#AUX_DIR  	?= _aux/
 AUX_DIR  	?= $(BUILD_DIR)
 DIST_DIR  	?= _dist/
-	# Extension of output:
+# Extension of output:
 OUT_EXT 	:= .pdf
 
-VIEW		?= index.pdf
-LINE		?= 1
-PAGE		?=
-VIEWER 		?= okular --unique -p $$PAGE "$(VIEW_PATH)"
+# Viewer
+VIEW			?= index.pdf
+LINE			?= 1
+PAGE			?=
+VIEWER 			?= okular --unique -p $$PAGE "$(VIEW_PATH)"
+VIEWER_FLAGS	?= okular --unique -p $$PAGE "$(VIEW_PATH)"
 
 TAG 				?= $(shell git tag --contains HEAD | sort | head -n1 )
 TAG_DEFAULT			?= latest
@@ -36,7 +38,7 @@ FTP_USER 			?=
 REMOTE_SUBDIR_PREF 	?=
 REMOTE_SUBDIR 		?= $(REMOTE_SUBDIR_PREF)$(PROJECT_NAME)/$(TAG)
 
-	# Name or root directory inside of the zip:
+# Name or root directory inside of the zip:
 IN_ZIP_NAME 		?= $(PROJECT_NAME)-$(TAG)
 
 CC_LATEX 	?= env "TEXINPUTS=./media//:./media-gen/out//:" pdflatex -output-directory "$(AUX_DIR)"
@@ -65,7 +67,7 @@ VIEW_PATH := $(shell echo `pwd`/$(BUILD_DIR)$$(echo -n $(VIEW) | sed -r "s|$$(pw
 # Remove automatic rules:
 .SUFFIXES:
 
-.PHONY: all clean help install-deps-ubuntu media-gen mkdir upload_output view
+.PHONY: all check clean dist distup help install-ubuntu media-gen mkdir view
 
 all: media-gen mkdir $(OUTS) rm-empty
 	@if [ $(MAKELEVEL) -eq 0 ]; then for IN_DIR in `find $(IN_DIR) ! -path $(IN_DIR) -type d`; do $(MAKE) IN_DIR="$$IN_DIR/" BUILD_DIR="$(BUILD_DIR)$${IN_DIR#$(IN_DIR)}/"; done; fi
@@ -86,6 +88,9 @@ $(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.tex $(STYS) $(BIBS)
 
 $(BUILD_DIR)%$(OUT_EXT): $(IN_DIR)%.md
 	@$(CC_MD) -o "$@" "$<"
+
+check:
+	@for cmd in "bibtex" "latex" "lftp" "pandoc" "synctex"; do printf "%-10s" "$$cmd" && if hash "$$cmd" 2>/dev/null; then printf "OK\n"; else printf "missing\n"; fi; done
 
 clean: distclean
 	@rm -rf $(BUILD_DIR) $(AUX_DIR)
@@ -125,9 +130,9 @@ distclean:
 
 # - remove any directory with the same name as the uploaded tag directory
 # - upload
-# 
+#
 # Only files with the OUT_EXT will be kept in the output.
-# 
+#
 # Will attempt to upload the current tag only.
 distup: dist
 	@cd $(DIST_DIR) && lftp -c "open -u $(FTP_USER) $(FTP_HOST) && rm -rf \"$(REMOTE_SUBDIR)\"; mkdir -p \"$(REMOTE_SUBDIR)\" && mirror -R \"$(TAG)\" \"$(REMOTE_SUBDIR)\""
@@ -144,9 +149,11 @@ distall: dist
 distupall: dist distup
 
 help:
-	@echo 'See the shared/README.md "Make targets" section for full documentation.'
+	@echo 'See shared/README.md "Make targets" section for full documentation.'
 	@echo ''
 	@echo 'all .................. Default target. Build PDF output.'
+	@echo ''
+	@echo 'check ................ Check for missing non-POSIX dependencies.'
 	@echo ''
 	@echo 'clean ................ Remove all compiled outputs.'
 	@echo ''
@@ -154,13 +161,13 @@ help:
 	@echo ''
 	@echo 'distup ............... Upload built dist output via FTP. Configured by FTP_HOST and FTP_USER. Implies `dist`.'
 	@echo ''
-	@echo 'install-deps-ubuntu .. Install missing dependencies on a clean Ubuntu 12.04.'
+	@echo 'install-ubuntu ....... Install missing dependencies on a clean Ubuntu 12.04.'
 	@echo ''
 	@echo 'media-gen ............ Build media under media-gen.'
 	@echo ''
 	@echo 'view ................. Open compiled output in a viewer. Configured by VIEWER, VIEW and LINE. Implies `all`.'
 
-install-deps-ubuntu:
+install-ubuntu:
 	@sudo apt-get install -y aptitude
 	@sudo aptitude install -y texlive-full
 	@sudo aptitude install -y pandoc
