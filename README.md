@@ -82,7 +82,7 @@ The `install` script helps automate the symlink creation process but is efficacy
 
 Finally, `git add` all the files you want to keep in the repo.
 
-#usage
+#Usage
 
 Once installed, the usage is based on `make`.
 
@@ -357,7 +357,7 @@ Those parameters can be equally given on the command line to make using the usua
 
     make PARAM_NAME=PARAM_VAL
 
-##parameters
+##Parameters
 
 The following configuration parameters are supported:
 
@@ -611,8 +611,7 @@ However, we have considered that this is currently the best alternative since th
 
 ###Clone into search paths
 
-Files which have search paths for example `.sty`, could be put once on search path for every version.
-as explained in <https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path>
+Files which have search paths for example `.sty`, could be put once on search path for every version. as explained in <https://github.com/cirosantilli/latex-cheat/blob/86cdba6be7a3b4900e9459d7dcd516db6d0121f4/readme.md#sty-search-path>
 
 This does not apply to `makefile` or `.gitignore` since there is no search path for thoes AFAIK.
 
@@ -648,7 +647,7 @@ However this has the following shortcomings:
 
 I believe this adds a startup and maintenance barrier that is too large, and that it is better to simply use up a little more memory.
 
-##why output directories are not on the repo
+##Why output directories are not on the repo
 
 It would be nice to keep the `BUILD_DIR` in the main repo to make that even clear for users that this dir will contain stuff.
 
@@ -656,12 +655,8 @@ However git cannot currently track empty dirs.
 
 Of course, one could put a dummy file like `.gitkeep` or `readme.md` inside the dir to keep it.
 
-However any file put into those dirs could conflict with output files
-(what if the program output is called `.gitkeep` or `readme.md` ?).
+However any file put into those dirs could conflict with output files (what if the program output is called `.gitkeep` or `readme.md` ?).
 
-Since `BUILD_DIR/` is such a rare name and obviously not a place where users should put their important files,
-a design decision was made to keep it out of the repo.
+Since `BUILD_DIR/` is such a rare name and obviously not a place where users should put their important files, a design decision was made to keep it out of the repo.
 
-Furthermore data loss is an inevitable possible consequence of `make clean`,
-and even keeping the `BUILD_DIR` in the repo would not prevent people from losing their data
-( it might even increase the chances that someone puts something in there... )
+Furthermore data loss is an inevitable possible consequence of `make clean`, and even keeping the `BUILD_DIR` in the repo would not prevent people from losing their data ( it might even increase the chances that someone puts something in there... )
