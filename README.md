@@ -139,7 +139,7 @@ Also, if you intend to use recursive operation, consider looking at the [Editor 
 
 The reason why users must configure their editors for recursive operation is that dependencies such as `.sty` or `.bib` will be put on the top-level (`~/.repo-root`) and the makefile is configured to make those visible to all subdirectories, while what all editors do by default is to take dependencies on the same dir as
 
-In non recursive operation, you just put all the dependencies in [IN_DIR](#in_dir) together with the tex files.
+In non recursive operation, you just put all the dependencies in [IN_DIR](#in_dir) together with the TeX files.
 
 #Make targets
 
@@ -147,7 +147,15 @@ For those unfamiliar with make: you can use targets simply as:
 
     make target-name
 
-The make commands assume that you current dir is the same as the Makefile.
+The `make` commands assume that you current dir is the same as the Makefile.
+
+You should read about the targets in the following order:
+
+- `help`
+- `install-deps-ubuntu`
+- `all`
+- `distup`
+- `clean`
 
 ##all
 
