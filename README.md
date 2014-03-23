@@ -1,8 +1,4 @@
-LaTeX shared files, meant to be factor out code across multiple LaTeX projects.
-
-Compiled versions of this file can be found [here](http://cirosantilli.t15.org/latex-submodule/).
-
-You can also compile this yourself by using `make` in this directory.
+LaTeX submodule to be factor out code across multiple LaTeX projects.
 
 #Features
 
