@@ -1,4 +1,6 @@
-LaTeX submodule to be factor out code across multiple LaTeX projects.
+LaTeX boilerplate to factor code across multiple projects.
+
+For a template which already has this installed as submodule, use: <https://github.com/cirosantilli/latex-template>.
 
 #Features
 
