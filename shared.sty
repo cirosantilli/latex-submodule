@@ -10,16 +10,16 @@
 \usepackage{amsthm}
 \usepackage{array}            % Format individual table columns
 \usepackage{floatrow}         % Center all floats like images or tables.
-\usepackage{graphicx}         % Provides: graphicspath
+\usepackage{graphicx}         % graphicspath, includegraphics
   % Also look under given paths for figures.
   % If you use twice, the second time destroys the first.
   % Those paths are given relative to the currently processed file,
   % not current directory from which latex was called.
   \graphicspath{{./media/}{./media-gen/out/}}
 \usepackage[utf8]{inputenc}   % á à â work, but not 中文, nor ~, <, >
-% lstlisting
+% Computer code
   \usepackage{lstautogobble}  % http://tex.stackexchange.com/questions/164993/indent-content-of-verbatim-lstlisting-environment-relative-to-containing-envir
-  \usepackage{listings}
+  \usepackage{listings}       % lstlisting, lstinline
   \lstset{
     autogobble,               % http://tex.stackexchange.com/questions/164993/indent-content-of-verbatim-lstlisting-environment-relative-to-containing-envir
     basicstyle=\ttfamily,     % monospace font
@@ -42,133 +42,131 @@
 \usepackage{ulem}             % underline with \uline{}
 \usepackage{verbatim}         % Comment enviroment.
 
-%\usepackage{tikz}      % not Miktex standard
-%\usepackage{booktabs}  % not Miktex standard
-%\usepackage{tocloft}   % not Miktex standard
-
-%----------- theorems -----------------%
-
-\newtheoremstyle{break}% name
-    {}%         Space above, empty = `usual value'
-    {}%         Space below
-    {}%         Body font
-    {}%         Indent amount (empty = no indent, \parindent = para indent)
-    {\bfseries}% Thm head font
-    {.}%        Punctuation after thm head
-    {\newline}% Space after thm head: \newline = linebreak
-    {}%         Thm head spec
-
-%\theoremstyle{definition}
-\theoremstyle{break}
-
-\newtheorem{example}{Example}[section]
-%\newenvironment{example}{\begin{exampleBase}}{\hrule \end{exampleBase}}
-
-\newtheorem{remark}[example]{Remark}
-\newtheorem{definition}[example]{Definition}
-\newtheorem{hypothesis}[example]{Hypothesis}
-\newtheorem{open-question}[example]{Open question}
-\newtheorem{conjecture}[example]{Conjecture}
-\newtheorem{algorithm}[example]{Algorithm}
-\newtheorem{theorem}[example]{Theorem}	%- same numbering as example -%
-\newtheorem{proposition}[example]{Proposition}
-\newtheorem{lemma}[example]{Lemma}
-
-\newcommand{\eq}[1]{\begin{align} #1 \end{align}}
-\newcommand{\tableW}[3]{\begin{table}[h] \begin{center} \begin{tabular}#2 \end{tabular} #1 \end{center} \end{table} }
-
-%----------- bibtex bibliography -----------------%
-\bibliographystyle{plain}
-
-%-------- references -%
-%\usepackage{letltxmacro}
-%\LetLtxMacro{\oldlabel}{\label}
-%\renewcommand{\label}[1]{{\oldlabel{#1}}
-
-\newcommand{\chapRef}[1]{\hyperref[#1]{Chapter \ref*{#1}}}
-\newcommand{\secRef}[1]{\hyperref[#1]{Section \ref*{#1}}}	%- Section reference. -%
-\newcommand{\defRef}[1]{\hyperref[#1]{Definition \ref*{#1}}}
-\newcommand{\expRef}[1]{\hyperref[#1]{Example \ref*{#1}}}
-\newcommand{\theoRef}[1]{\hyperref[#1]{Theorem \ref*{#1}}}
-\newcommand{\propRef}[1]{\hyperref[#1]{Proposition \ref*{#1}}}
-\newcommand{\remRef}[1]{\hyperref[#1]{Remark \ref*{#1}}}
-\newcommand{\eqRef}[1]{\hyperref[#1]{(\ref*{#1})}} %- Equation reference. between parenthesis -%
-\newcommand{\figRef}[1]{\hyperref[#1]{Figure \ref*{#1}}} %- Figure reference. between parenthesis -%
-
+% Don't indent paragraphs and separate them vertically to look like web pages.
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{0.25cm}
 
-%-- math only, no form -----------------------------------------------%
-%- analysis -%
+% theorems
 
-%- limits -%
-\newcommand{\tendsTo}{\longrightarrow}
-\newcommand{\notTendTo}{\nrightarrow}
+  \newtheoremstyle{break}
+      {}          % Space above, empty = `usual value'.
+      {}          % Space below.
+      {}          % Body font.
+      {}          % Indent amount (empty = no indent, \parindent = para indent).
+      {\bfseries} % Thm head font.
+      {.}         % Punctuation after thm head.
+      {\newline}  % Space after thm head: \newline = linebreak.
+      {}          % Thm head spec.
 
-%- derivatives -%
-\newcommand{\der}[2]{\frac{d#1}{d#2}}	%- derivative -%
-\newcommand{\derAt}[3]{\left.\frac{d#1}{d#2}\right|_{#2=#3}}	%- value of derivative evaluated AT a point-%
-\newcommand{\parDer}[2]{\frac{\partial #1}{\partial #2 }}	%- partial derivative -%
-\newcommand{\grad}{\nabla}		%- gradient -%
+  %\theoremstyle{definition}
+  \theoremstyle{break}
 
-%- norms and products -%
-\newcommand{\proj}[1]{proj_{#1}}
-\newcommand{\measure}[1]{meas(#1)}
-\newcommand{\norm}[1]{\left|\left| #1\right|\right|}
-\newcommand{\normOne}[1]{{\left|\left| #1\right|\right|}_1}
-\newcommand{\normTwo}[1]{{\left|\left| #1\right|\right|}_2}
-\newcommand{\normSup}[1]{{\left|\left| #1\right|\right|}_\infty}
-\newcommand{\opNorm}[1]{{\left|\left| #1\right|\right|_{op}}}
+  \newtheorem{example}{Example}[section]
+  %\newenvironment{example}{\begin{exampleBase}}{\hrule \end{exampleBase}}
 
-\newcommand{\argmax}[1]{\underset{#1}{\operatorname{argmax}}}
-\newcommand{\argmin}[1]{\underset{#1}{\operatorname{argmin}}}
+  \newtheorem{remark}[example]{Remark}
+  \newtheorem{definition}[example]{Definition}
+  \newtheorem{hypothesis}[example]{Hypothesis}
+  \newtheorem{open-question}[example]{Open question}
+  \newtheorem{conjecture}[example]{Conjecture}
+  \newtheorem{algorithm}[example]{Algorithm}
+  \newtheorem{theorem}[example]{Theorem}	%- same numbering as example -%
+  \newtheorem{proposition}[example]{Proposition}
+  \newtheorem{lemma}[example]{Lemma}
 
-%- matrices -%
-\newcommand{\Mn}{M(n)}
-\newcommand{\GLn}{GL(n)}    %- general linear group nxn -%
-\newcommand{\Symn}{Sym(n)}  %- Symmetric matrices nxn -%
-\newcommand{\SPDn}{Sym_{\star}^{+}(n)} %- Symmetric Positive Definite nxn -%
+  \newcommand{\eq}[1]{\begin{align} #1 \end{align}}
+  \newcommand{\tableW}[3]{\begin{table}[h] \begin{center} \begin{tabular}#2 \end{tabular} #1 \end{center} \end{table} }
 
-\newcommand{\Tr}{Tr} %- trace. does not include () because they can also be \left(\right). Also \Tr() looks better then \Tr{} -%
+% BibTeX bibliography
+\bibliographystyle{plain}
 
-%- sets and logic -%
-\newcommand{\union}{\cup}	%- set union -%
-\newcommand{\inter}{\cap}	%- set intersection -%
-\newcommand{\cartProd}{\times}	%- cartesian product -%
+% references
 
-%- named sets -%
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\Q}{\mathbb{Q}}
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\C}{\mathbb{C}}
+  %\usepackage{letltxmacro}
+  %\LetLtxMacro{\oldlabel}{\label}
+  %\renewcommand{\label}[1]{{\oldlabel{#1}}
 
-%- functions -%
-\newcommand{\domainImageArrow}{\rightarrow}
-\newcommand{\funcDom}[3]{#1 : #2 \to #3}
-\newcommand{\funcDef}[5]{ #1 \colon #2 & \domainImageArrow #3 \nonumber \\ #4 & \mapsto #5} %- function definition. name, domain, image, x, f(x). MUST BE PUT INSIDE ALIGN -%
-\newcommand{\comp}{\circ} %- function composition -%
-\newcommand{\restr}[2]{ \left.#1\right|_{#2}}	%- domain restriction of a function -%
+  \newcommand{\chapRef}[1]{\hyperref[#1]{Chapter~\ref*{#1}}}
+  \newcommand{\secRef}[1]{\hyperref[#1]{Section~\ref*{#1}}}	%- Section reference. -%
+  \newcommand{\defRef}[1]{\hyperref[#1]{Definition~\ref*{#1}}}
+  \newcommand{\expRef}[1]{\hyperref[#1]{Example~\ref*{#1}}}
+  \newcommand{\theoRef}[1]{\hyperref[#1]{Theorem~\ref*{#1}}}
+  \newcommand{\propRef}[1]{\hyperref[#1]{Proposition~\ref*{#1}}}
+  \newcommand{\remRef}[1]{\hyperref[#1]{Remark~\ref*{#1}}}
+  \newcommand{\eqRef}[1]{\hyperref[#1]{(\ref*{#1})}} %- Equation reference. between parenthesis -%
+  \newcommand{\figRef}[1]{\hyperref[#1]{Figure~\ref*{#1}}} %- Figure reference. between parenthesis -%
 
-%- named functions -%
-\newcommand{\indQx}{\mathbf{1}_{\Q}(x)}	    %- rational indicator function of x -%
-\newcommand{\indQ}[1]{\mathbf{1}_{\Q}(#1)}  %- rational indicator function -%
+% Math
 
-%#arrow text above and below
-\makeatletter
-\newlength\min@xx
-\newcommand*\xxrightarrow[1]{\begingroup
-  \settowidth\min@xx{$\m@th\scriptstyle#1$}
-  \@xxrightarrow}
-\newcommand*\@xxrightarrow[2][]{
-  \sbox8{$\m@th\scriptstyle#1$}  % subscript
-  \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
-  \sbox8{$\m@th\scriptstyle#2$} % superscript
-  \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
-  \xrightarrow[{\mathmakebox[\min@xx]{\scriptstyle#1}}]
-    {\mathmakebox[\min@xx]{\scriptstyle#2}}
-  \endgroup}
-\makeatother
+  % Limits
+  \newcommand{\tendsTo}{\longrightarrow}
+  \newcommand{\notTendTo}{\nrightarrow}
 
-% to be used in the future
-% \newcommand{\hypotenuse}{\ensuremath{a^{2}+y^{2}}} works either in or out of equation. ($$ inside equation == not good)
+  % Derivatives
+  \newcommand{\der}[2]{\frac{d#1}{d#2}}	%- derivative -%
+  \newcommand{\derAt}[3]{\left.\frac{d#1}{d#2}\right|_{#2=#3}}	%- value of derivative evaluated AT a point-%
+  \newcommand{\parDer}[2]{\frac{\partial #1}{\partial #2 }}	%- partial derivative -%
+  \newcommand{\grad}{\nabla}		%- gradient -%
+
+  % Norms and products
+  \newcommand{\proj}[1]{proj_{#1}}
+  \newcommand{\measure}[1]{meas(#1)}
+  \newcommand{\norm}[1]{\left|\left| #1\right|\right|}
+  \newcommand{\normOne}[1]{{\left|\left| #1\right|\right|}_1}
+  \newcommand{\normTwo}[1]{{\left|\left| #1\right|\right|}_2}
+  \newcommand{\normSup}[1]{{\left|\left| #1\right|\right|}_\infty}
+  \newcommand{\opNorm}[1]{{\left|\left| #1\right|\right|_{op}}}
+
+  \newcommand{\argmax}[1]{\underset{#1}{\operatorname{argmax}}}
+  \newcommand{\argmin}[1]{\underset{#1}{\operatorname{argmin}}}
+
+  % Matrices
+  \newcommand{\Mn}{M(n)}
+  \newcommand{\GLn}{GL(n)}    %- general linear group nxn -%
+  \newcommand{\Symn}{Sym(n)}  %- Symmetric matrices nxn -%
+  \newcommand{\SPDn}{Sym_{\star}^{+}(n)} %- Symmetric Positive Definite nxn -%
+
+  \newcommand{\Tr}{Tr} %- trace. does not include () because they can also be \left(\right). Also \Tr() looks better then \Tr{} -%
+
+  % Sets and logic
+  \newcommand{\union}{\cup}	%- set union -%
+  \newcommand{\inter}{\cap}	%- set intersection -%
+  \newcommand{\cartProd}{\times}	%- cartesian product -%
+
+  % Named sets
+  \newcommand{\N}{\mathbb{N}}
+  \newcommand{\Z}{\mathbb{Z}}
+  \newcommand{\Q}{\mathbb{Q}}
+  \newcommand{\R}{\mathbb{R}}
+  \newcommand{\C}{\mathbb{C}}
+
+  % Functions
+  \newcommand{\domainImageArrow}{\rightarrow}
+  \newcommand{\funcDom}[3]{#1 : #2 \to #3}
+  % Function definition. name, domain, image, x, f(x). MUST be put inside align.
+  \newcommand{\funcDef}[5]{#1 \colon #2 & \domainImageArrow #3 \nonumber \\ #4 & \mapsto #5}
+  \newcommand{\comp}{\circ} %- function composition -%
+  \newcommand{\restr}[2]{\left.#1\right|_{#2}}	%- domain restriction of a function -%
+
+  % Named functions
+  \newcommand{\indQx}{\mathbf{1}_{\Q}(x)}	    %- rational indicator function of x -%
+  \newcommand{\indQ}[1]{\mathbf{1}_{\Q}(#1)}  %- rational indicator function -%
+
+  % Arrow text above and below
+  \makeatletter
+  \newlength\min@xx
+  \newcommand*\xxrightarrow[1]{\begingroup
+    \settowidth\min@xx{$\m@th\scriptstyle#1$}
+    \@xxrightarrow}
+  \newcommand*\@xxrightarrow[2][]{
+    \sbox8{$\m@th\scriptstyle#1$}  % subscript
+    \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
+    \sbox8{$\m@th\scriptstyle#2$} % superscript
+    \ifdim\wd8>\min@xx \min@xx=\wd8 \fi
+    \xrightarrow[{\mathmakebox[\min@xx]{\scriptstyle#1}}]
+      {\mathmakebox[\min@xx]{\scriptstyle#2}}
+    \endgroup}
+  \makeatother
+
+  % To be used in the future
+  %\newcommand{\hypotenuse}{\ensuremath{a^{2}+y^{2}}} works either in or out of equation. ($$ inside equation == not good)

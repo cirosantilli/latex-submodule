@@ -11,29 +11,30 @@
 # that users have media .pdf files for which they do not hold the source
 # and which they want to include into their projects
 
-*.aux
-*.glo
-*.idx
-*.log
-*.toc
-*.ist
 *.acn
 *.acr
 *.alg
+*.aux
 *.bbl
 *.blg
 *.dvi
+*.fdb_latexmk
+*.fls
 *.glg
+*.glo
 *.gls
+*.idx
 *.ilg
 *.ind
+*.ist
 *.lof
+*.log
 *.lot
 *.maf
 *.mtc
 *.mtc1
 *.out
-*.synctex.gz
-
-*.ps
 *.pdf
+*.ps
+*.synctex.gz
+*.toc

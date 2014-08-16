@@ -1,6 +1,6 @@
 LaTeX boilerplate to factor code across multiple projects.
 
-For a template which already has this installed as submodule, use: <https://github.com/cirosantilli/latex-template>.
+For a template which already has this installed as submodule use: <https://github.com/cirosantilli/latex-template>.
 
 #Features
 
@@ -53,36 +53,20 @@ See [install targets](#install-targets) for a full list.
 
 If you manage to configure this project for use in any other system not mentioned here, please submit a pull request and we will be glad to merge it.
 
-#Installation
+#Install
 
-##New project
-
-For a new project, consider using the LaTeX template located at: <https://github.com/cirosantilli/latex-template> directly,
-which already has this submodule installed.
-
-See the instructions on the README for how to use that template.
-
-##Existing project
-
-Include this as a submodule in your existing git repo as:
+Install on an existing project with:
 
     git submodule add https://github.com/cirosantilli/latex-submodule shared
-
-At the repo root then symlink files from the required place in the repo into this submodule. For example, to use the makefile do you probably want a struture such as:
-
-    git-root/shared/makefile
-    git-root/makefile               ( -> shared/makefile)
-
-which you can achieve via:
-
-    ln -s shared/makefile makefile
-
-The `install` script helps automate the symlink creation process but is efficacy for existing projects is limited since it cannot decide what to do if symlink names already exist. To use it do:
-
     cd `shared`
     ./install
 
-Finally, `git add` all the files you want to keep in the repo.
+This generates symlinks such as:
+
+    Makefile -> shared/Makefile
+    shared.sty -> shared/shared.sty
+
+Finally, `git add` all the symlinks you want to keep.
 
 #Usage
 
