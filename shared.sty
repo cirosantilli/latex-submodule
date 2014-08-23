@@ -34,9 +34,10 @@
   \PassOptionsToPackage{hyphens}{url}\usepackage[
     linkbordercolor={1 0 0}   %  TODO the color is not changing for \url commands
   ]{hyperref}
-\usepackage{makeidx}          % Makes index.
+\usepackage{makeidx}
+  \makeindex
 \usepackage{mathtools}        % Arrow text above and below.
-\usepackage{natbib}	          % Provides: citep
+\usepackage{natbib}	          % citep, bibliography styles
 \usepackage[compact]{titlesec}
   \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
 \usepackage{ulem}             % underline with \uline{}
@@ -76,9 +77,6 @@
 
   \newcommand{\eq}[1]{\begin{align} #1 \end{align}}
   \newcommand{\tableW}[3]{\begin{table}[h] \begin{center} \begin{tabular}#2 \end{tabular} #1 \end{center} \end{table} }
-
-% BibTeX bibliography
-\bibliographystyle{plain}
 
 % references
 
